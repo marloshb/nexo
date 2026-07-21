@@ -72,6 +72,7 @@ export function ArcGISOperationalMap({ points, height = 420, selectedId, onSelec
       if (!mapDiv.current) return;
       try {
         const arcgis = await waitForArcGIS();
+        if (!arcgis) throw new Error('ArcGIS Maps SDK indisponível.');
         const [Map, MapView, FeatureLayer, Graphic, Point, Polyline, Layer, esriConfig] = await arcgis.import([
           "@arcgis/core/Map.js",
           "@arcgis/core/views/MapView.js",
@@ -400,7 +401,7 @@ function ensureArcGISAssets() {
   if (window.$arcgis?.import) return Promise.resolve(window.$arcgis);
   if (arcgisLoaderPromise) return arcgisLoaderPromise;
 
-  arcgisLoaderPromise = new Promise((resolve, reject) => {
+  arcgisLoaderPromise = new Promise<NonNullable<Window["$arcgis"]>>((resolve, reject) => {
     const existing = document.getElementById('arcgis-sdk-script') as HTMLScriptElement | null;
     const script = existing ?? document.createElement('script');
     const timeout = window.setTimeout(() => reject(new Error('O CDN do ArcGIS Maps SDK não respondeu dentro do tempo esperado.')), 15000);

@@ -28,18 +28,6 @@ export const NAV_PRODUCTS: NavProduct[] = [
 ];
 
 export interface SidebarItem { id?: string; label: string; iconKey: string; }
-const STD = {
-  visao: { label: 'Visão geral', iconKey: 'LayoutGrid' },
-  mapa: { label: 'Mapa', iconKey: 'Map' },
-  operacoes: { label: 'Operações', iconKey: 'Activity' },
-  workflows: { label: 'Workflows', iconKey: 'Workflow' },
-  analytics: { label: 'Analytics', iconKey: 'BarChart3' },
-  agentes: { label: 'Agentes', iconKey: 'Bot' },
-  relatorios: { label: 'Relatórios', iconKey: 'FileText' },
-  integracoes: { label: 'Integrações', iconKey: 'Plug' },
-  administracao: { label: 'Administração', iconKey: 'Settings' },
-};
-
 export const SIDEBAR_CONFIG: Record<ProductKey, SidebarItem[]> = {
   hub: [],
   control: [
