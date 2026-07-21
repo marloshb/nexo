@@ -159,3 +159,20 @@ O módulo **Nexo Carteira** passou a cobrir todas as opções do menu lateral co
 - Administração de regras, critérios, perfis e alçadas.
 
 A simulação ao vivo orquestra os agentes de Radar Territorial, Geocodificação, Duplicidades, Enriquecimento, Priorização e Despachos. Aprovações, arquivamentos e encaminhamentos materiais permanecem sujeitos a decisão humana. Todos os registros são sintéticos e destinados exclusivamente à demonstração funcional.
+
+## Nexo Estrutura — implementação funcional ampliada
+
+O módulo **Nexo Estrutura** foi implementado integralmente, preservando os módulos Nexo Control, Capital e Carteira e suas integrações.
+
+- Visão geral com casos, alternativas, linha de estruturação, decisões e eventos ao vivo;
+- Alternativas técnicas com comparador, dossiê detalhado e criação de novo cenário;
+- Modelo financeiro com premissas editáveis, Capex, Opex, funding mix, fluxo e bancabilidade;
+- Cenários com sensibilidade, vida útil, riscos e simulação dinâmica;
+- Mapa da carteira com cobertura, dependências e contexto territorial;
+- Analytics de tempo, precisão, retrabalho, maturidade e valor otimizado;
+- Agentes de orquestração, alternativas, finanças, território, riscos e despacho;
+- Relatórios gerados dinamicamente e pacote estruturado de decisão;
+- Administração de regras, perfis, alçadas, integrações e governança de IA.
+
+O ciclo ao vivo simula coleta de dados, comparação de soluções, otimização territorial, recálculo financeiro, análise de dependências e preparação da baseline. A homologação e o encaminhamento ao Nexo Contrata permanecem sujeitos a gate humano. Todos os dados são sintéticos.
+
