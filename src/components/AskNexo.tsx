@@ -1,133 +1,255 @@
-import { useState, useRef, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Icon } from '@/lib/icons';
 import { cls } from '@/lib/tokens';
+import type { ProductKey } from '@/data/navConfig';
+import {
+  askNexo,
+  hasSecureEndpoint,
+  productDisplayName,
+  suggestionsFor,
+  type NexoAssistantReply,
+  type NexoChatMessage,
+} from '@/lib/nexoAssistant';
 
-interface ChatMsg { role: 'user' | 'assistant'; text: string; }
+interface ChatMsg extends NexoChatMessage {
+  sources?: string[];
+  confidence?: number;
+  mode?: NexoAssistantReply['mode'];
+}
 
-const SYSTEM_PROMPT = `Você é o "Nexo AI", o assistente de inteligência do CAIXA Nexo — uma plataforma corporativa que conecta capital, programas, operações, projetos, contratos, execução, medições, desembolsos, ativos, serviços, beneficiários e evidências.
+const START_MESSAGE: ChatMsg = {
+  role: 'assistant',
+  text: 'Olá, Marlos. Sou o Nexo AI. Posso analisar a carteira, explicar um módulo, resumir um ativo e indicar riscos, agentes e próximas decisões.',
+  sources: ['Base sintética CAIXA Nexo'],
+  confidence: 0.99,
+  mode: 'local',
+};
 
-Responda sempre em português do Brasil, de forma direta, objetiva e executiva (parágrafos curtos ou tópicos, no máximo ~120 palavras a menos que o usuário peça mais detalhe). Baseie-se no contexto sintético de demonstração abaixo. Se a pergunta fugir desse escopo, responda com conhecimento geral sobre gestão de carteiras de infraestrutura, financiamento público e MRV, deixando claro quando estiver fora dos dados da plataforma. Nunca invente números específicos que não estejam no contexto ou que não sejam claramente estimativas.
 
-CONTEXTO DA CARTEIRA (dados sintéticos de demonstração):
-- Capital alocado: R$ 6,8 bi | Contratado: R$ 5,1 bi | Desembolsado: R$ 3,2 bi | Execução física média: 58%
-- 8 ativos acompanhados em SP, PE, PA, CE, MG, RN, AM e GO, nos setores de saneamento, habitação, drenagem, recursos hídricos, mobilidade, energia, saúde e educação
-- Caso em destaque: "Sistema Integrado de Esgotamento Vale Verde" (SP, NEXO-ASSET-BR-SP-3549904-SAN-000284) — R$ 480 milhões, execução física 64%, risco Crítico. A Medição nº 6 apresentou divergência espacial (desvio médio de 47m) em 3 trechos (T-14, T-17, T-22); o Agente de Inconsistências e Fraude recomendou vistoria; a Ordem OV-2026-0871 foi aberta; liberação parcial sugerida de R$ 15,7 milhões de R$ 18,4 milhões solicitados
-- "Residencial Horizonte Azul" (PE) — 1.240 unidades habitacionais, execução 87%, prontidão operacional NÃO concedida por pendência de acesso viário
-- "Programa de Macrodrenagem Rio Norte" (PA) — 14 ativos, 5 contratos, 3 municípios, execução 42%; evento climático simulado expôs 2 ativos; Agente de Risco Territorial e Climático recomendou reprogramação
-- Demais ativos operando normalmente: Adutora Sertão Vivo (CE, saúde do ativo 91), Complexo Eólico Costa Branca (RN, saúde do ativo 87), Escola Técnica Cerrado (GO), com Corredor BRT Serra Azul (MG) e UBS Digital Norte (AM) em contratação/estruturação
+function MessageText({ text }: { text: string }) {
+  return (
+    <>
+      {text.split('\n').map((line, lineIndex) => (
+        <span key={`${line}-${lineIndex}`}>
+          {line.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part, partIndex) =>
+            part.startsWith('**') && part.endsWith('**')
+              ? <strong key={`${part}-${partIndex}`} className="font-semibold text-neutral-50">{part.slice(2, -2)}</strong>
+              : <span key={`${part}-${partIndex}`}>{part}</span>
+          )}
+          {lineIndex < text.split('\n').length - 1 && <br />}
+        </span>
+      ))}
+    </>
+  );
+}
 
-Você também conhece os 11 produtos do Nexo (Control, Capital, Carteira, Estrutura, Contrata, Entrega, Evidência, Ativos, Impacto, Agents, Data) e os 12 agentes de IA da plataforma (Orquestrador, Funding e Covenants, Elegibilidade, Risco Territorial e Climático, Engenharia e Custos, Inconsistências e Fraude, Medição e Desembolso, Vistoria, Despachos e Diligências, Comissionamento, Saúde do Ativo, Impacto e MRV). Pode comentar sobre qualquer um deles.`;
+const ANALYSIS_STEPS = [
+  'Identificando intenção e contexto…',
+  'Consultando produtos e ativos relacionados…',
+  'Cruzando riscos, evidências e decisões…',
+  'Consolidando recomendação executiva…',
+];
 
-export function AskNexoPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: 'assistant', text: 'Olá, Marlos. Sou o Nexo AI. Posso responder sobre a carteira, um ativo específico, um agente ou um produto do Nexo. O que você quer saber?' },
-  ]);
+export function AskNexoPanel({
+  open,
+  onClose,
+  product,
+  activeAssetId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  product: ProductKey;
+  activeAssetId?: string | null;
+}) {
+  const [messages, setMessages] = useState<ChatMsg[]>([START_MESSAGE]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const endpointConfigured = hasSecureEndpoint();
+  const suggestions = useMemo(() => suggestionsFor(product), [product]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, loading, analysisStep]);
 
-  async function send(text: string) {
-    if (!text.trim() || loading) return;
-    const nextMessages: ChatMsg[] = [...messages, { role: 'user', text }];
+  useEffect(() => {
+    if (!loading) {
+      setAnalysisStep(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setAnalysisStep((step) => Math.min(step + 1, ANALYSIS_STEPS.length - 1));
+    }, 520);
+    return () => window.clearInterval(timer);
+  }, [loading]);
+
+  async function send(rawText: string) {
+    const text = rawText.trim();
+    if (!text || loading) return;
+
+    const userMessage: ChatMsg = { role: 'user', text };
+    const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setInput('');
     setLoading(true);
     setError(null);
+
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: nextMessages.map((m) => ({ role: m.role, content: m.text })),
-        }),
-      });
-      const data = await response.json();
-      const textBlocks = (data.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text);
-      const answer = textBlocks.join('\n').trim() || 'Não consegui gerar uma resposta agora. Tente reformular a pergunta.';
-      setMessages((prev) => [...prev, { role: 'assistant', text: answer }]);
-    } catch (e) {
-      setError('Não foi possível conectar ao serviço de IA no momento.');
+      const reply = await askNexo(
+        text,
+        nextMessages.map(({ role, text: messageText }) => ({ role, text: messageText })),
+        { product, activeAssetId },
+      );
+      setMessages((current) => [...current, {
+        role: 'assistant',
+        text: reply.answer,
+        sources: reply.sources,
+        confidence: reply.confidence,
+        mode: reply.mode,
+      }]);
+    } catch {
+      setError('Não foi possível processar a pergunta. Tente novamente.');
     } finally {
       setLoading(false);
     }
   }
 
-  const suggestions = [
-    'Por que o Vale Verde está crítico?',
-    'O que o Agente de Risco Climático recomendou?',
-    'Resuma a carteira nacional em 3 pontos',
-  ];
+  function resetChat() {
+    setMessages([START_MESSAGE]);
+    setInput('');
+    setError(null);
+  }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="right" className="bg-[#0B2235] border-white/10 text-neutral-100 w-full sm:max-w-md flex flex-col p-0">
+    <Sheet open={open} onOpenChange={(value) => !value && onClose()}>
+      <SheetContent side="right" className="bg-[#0B2235] border-white/10 text-neutral-100 w-full sm:max-w-[470px] flex flex-col p-0">
         <SheetHeader className="p-4 border-b border-white/8 shrink-0">
-          <SheetTitle className="font-display text-neutral-50 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-md bg-[#18B7D6]/20 flex items-center justify-center"><Icon name="Sparkles" size={13} className="text-[#18B7D6]" /></span>
-            Perguntar ao Nexo
-          </SheetTitle>
-          <SheetDescription className="text-neutral-400 text-[12px]">
-            Respostas geradas em tempo real (Claude), fundamentadas nos dados sintéticos da plataforma.
-          </SheetDescription>
+          <div className="flex items-start justify-between gap-3 pr-8">
+            <div>
+              <SheetTitle className="font-display text-neutral-50 flex items-center gap-2">
+                <span className="w-7 h-7 rounded-md bg-[#18B7D6]/20 flex items-center justify-center">
+                  <Icon name="Sparkles" size={14} className="text-[#18B7D6]" />
+                </span>
+                Perguntar ao Nexo
+              </SheetTitle>
+              <SheetDescription className="text-neutral-400 text-[11.5px] mt-1">
+                Contexto atual: {productDisplayName(product)}
+              </SheetDescription>
+            </div>
+            <button onClick={resetChat} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] text-neutral-400 hover:text-neutral-200" title="Limpar conversa">
+              <Icon name="RotateCcw" size={12} className="inline mr-1" /> Limpar
+            </button>
+          </div>
+          <div className="mt-3 flex items-center gap-2 text-[10.5px]">
+            <span className={cls(
+              'inline-flex items-center gap-1.5 rounded-full border px-2 py-1',
+              endpointConfigured
+                ? 'border-[#0FA39D]/30 bg-[#0FA39D]/10 text-[#67D6D0]'
+                : 'border-[#18B7D6]/30 bg-[#18B7D6]/10 text-[#6FD8EC]',
+            )}>
+              <span className={cls('w-1.5 h-1.5 rounded-full', endpointConfigured ? 'bg-[#0FA39D]' : 'bg-[#18B7D6]')} />
+              {endpointConfigured ? 'IA conectada por endpoint seguro' : 'Demonstração funcional local'}
+            </span>
+            <span className="text-neutral-600">Nenhuma chave exposta no navegador</span>
+          </div>
         </SheetHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto nexo-scroll p-4 space-y-3">
-          {messages.map((m, i) => (
-            <div key={i} className={cls('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
-              <div
-                className={cls(
-                  'max-w-[85%] rounded-xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap',
-                  m.role === 'user' ? 'bg-[#1584D1] text-white' : 'bg-white/[0.06] border border-white/10 text-neutral-200'
+          {messages.map((message, index) => (
+            <div key={`${message.role}-${index}`} className={cls('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}>
+              <div className={cls(
+                'max-w-[88%] rounded-xl px-3.5 py-2.5 text-[12.5px] leading-relaxed whitespace-pre-wrap',
+                message.role === 'user'
+                  ? 'bg-[#1584D1] text-white'
+                  : 'bg-white/[0.06] border border-white/10 text-neutral-200',
+              )}>
+                <MessageText text={message.text} />
+                {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                  <div className="mt-2.5 pt-2 border-t border-white/8">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-[9.5px] uppercase tracking-wide text-neutral-600">Fontes consultadas</span>
+                      {typeof message.confidence === 'number' && (
+                        <span className="text-[9.5px] text-neutral-500">confiança {Math.round(message.confidence * 100)}%</span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {message.sources.map((source) => (
+                        <span key={source} className="rounded-full bg-white/[0.06] border border-white/8 px-2 py-0.5 text-[9.5px] text-neutral-400">
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                    {message.mode === 'fallback' && (
+                      <div className="mt-1.5 text-[9.5px] text-[#E5A11A]">Endpoint indisponível; resposta produzida pela base local.</div>
+                    )}
+                  </div>
                 )}
-              >
-                {m.text}
               </div>
             </div>
           ))}
+
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-xl px-3.5 py-2.5 bg-white/[0.06] border border-white/10 flex items-center gap-2 text-[12.5px] text-neutral-400">
-                <Icon name="Loader2" size={13} className="animate-spin" /> pensando…
+              <div className="w-[88%] rounded-xl px-3.5 py-3 bg-white/[0.06] border border-white/10">
+                <div className="flex items-center gap-2 text-[12px] text-neutral-300">
+                  <Icon name="Loader2" size={13} className="animate-spin text-[#18B7D6]" />
+                  {ANALYSIS_STEPS[analysisStep]}
+                </div>
+                <div className="mt-2 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div className="h-full bg-[#18B7D6] transition-all duration-500" style={{ width: `${25 + analysisStep * 24}%` }} />
+                </div>
+                <div className="mt-2 flex gap-1.5">
+                  {['contexto', 'ativos', 'riscos', 'decisão'].map((item, index) => (
+                    <span key={item} className={cls(
+                      'rounded-full border px-1.5 py-0.5 text-[9px]',
+                      index <= analysisStep ? 'border-[#18B7D6]/30 bg-[#18B7D6]/10 text-[#6FD8EC]' : 'border-white/8 text-neutral-600',
+                    )}>{item}</span>
+                  ))}
+                </div>
               </div>
             </div>
           )}
-          {error && <div className="text-[12px] text-[#D14A55] text-center">{error}</div>}
+
+          {error && <div className="text-[11.5px] text-[#D14A55] text-center rounded-md bg-[#D14A55]/8 border border-[#D14A55]/20 p-2">{error}</div>}
         </div>
 
-        {messages.length <= 1 && (
-          <div className="px-4 pb-2 flex flex-wrap gap-1.5 shrink-0">
-            {suggestions.map((s) => (
-              <button key={s} onClick={() => send(s)} className="text-[11px] rounded-full border border-white/12 px-2.5 py-1 text-neutral-400 hover:text-neutral-200 hover:border-white/25">
-                {s}
-              </button>
-            ))}
+        {messages.length <= 2 && (
+          <div className="px-4 pb-2 shrink-0">
+            <div className="text-[9.5px] uppercase tracking-wide text-neutral-600 mb-2">Perguntas sugeridas</div>
+            <div className="flex flex-wrap gap-1.5">
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => send(suggestion)}
+                  disabled={loading}
+                  className="text-[10.5px] rounded-full border border-white/12 px-2.5 py-1.5 text-neutral-400 hover:text-neutral-200 hover:border-[#18B7D6]/40 disabled:opacity-40"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         <div className="p-3.5 border-t border-white/8 shrink-0">
           <form
-            onSubmit={(e) => { e.preventDefault(); send(input); }}
+            onSubmit={(event) => { event.preventDefault(); void send(input); }}
             className="flex items-center gap-2 rounded-lg border border-white/12 bg-white/[0.04] px-2.5 py-1.5 focus-within:border-[#1584D1]"
           >
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Pergunte sobre a carteira, um ativo ou um agente…"
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="Pergunte sobre carteira, ativo, agente ou decisão…"
               className="flex-1 bg-transparent outline-none text-[12.5px] text-neutral-200 placeholder:text-neutral-500"
             />
             <button type="submit" disabled={loading || !input.trim()} className="p-1.5 rounded-md bg-[#1584D1] disabled:opacity-40 text-white shrink-0">
               <Icon name="Send" size={13} />
             </button>
           </form>
+          <div className="mt-1.5 text-[9.5px] text-neutral-600 text-center">Dados sintéticos de demonstração. Decisões críticas exigem validação humana.</div>
         </div>
       </SheetContent>
     </Sheet>

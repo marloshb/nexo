@@ -21,7 +21,7 @@ pnpm build     # build de produção (dist/)
 - **Nexo Ativos** — portfólio nacional (tabela + mapa)
 - **Nexo Capital, Carteira, Estrutura, Contrata e Impacto** — módulos funcionais com fluxos, agentes, relatórios e integrações
 - **Nexo Data** — catálogo, integrações, qualidade e governança
-- **"Perguntar ao Nexo"** — chamada real à API da Anthropic (Claude), fundamentada no contexto sintético da carteira
+- **"Perguntar ao Nexo"** — assistente funcional híbrido: motor local para GitHub Pages e endpoint seguro opcional para IA generativa
 - Todos os dados são sintéticos — ver `src/data/mockData.ts`, `src/data/navConfig.ts` e `src/data/brazilMap.ts`
 
 ## Mapa: da versão sintética para o ArcGIS Maps SDK 5.1 real
@@ -107,7 +107,7 @@ A configuração `base: "./"` em `vite.config.ts` evita caminhos quebrados quand
 
 ### Observação sobre as funções de IA
 
-O GitHub Pages hospeda apenas arquivos estáticos. As chamadas atuais à API da Anthropic, feitas diretamente no navegador, não devem receber uma chave secreta no frontend. Para habilitar essas funções em produção, use uma API intermediária protegida, por exemplo uma função serverless, e mantenha a chave somente no servidor. Sem essa API, o restante do mockup funciona, mas os botões de geração por IA exibirão erro de conexão.
+O **Perguntar ao Nexo funciona no GitHub Pages sem backend**, utilizando o motor local fundamentado nos dados sintéticos da plataforma. Para respostas generativas abertas, configure `VITE_NEXO_AI_ENDPOINT` com uma API intermediária protegida. A chave do provedor permanece no servidor; se o endpoint falhar, o painel retorna automaticamente ao modo local.
 
 
 ## Nexo Control — implementação ampliada
@@ -246,3 +246,25 @@ O módulo **Nexo Impacto** foi implementado integralmente e conectado ao ciclo C
 - Agentes de indicadores, beneficiários, atribuição, evidências e relatórios, com execução dinâmica e eventos ao vivo.
 
 O ciclo ao vivo simula validação metodológica, conciliação de beneficiários, ligação de evidências, cálculo de atribuição e preparação da publicação. Indicadores divergentes permanecem restritos até decisão humana. Todos os dados são sintéticos.
+
+## Perguntar ao Nexo
+
+O assistente funciona imediatamente no GitHub Pages por meio de um motor local de demonstração, fundamentado nos dados sintéticos da plataforma. Ele reconhece módulos, ativos, riscos, agentes e decisões, exibe fontes consultadas e simula o processamento em tempo real.
+
+Para conectar uma IA generativa real, configure apenas a URL de um endpoint seguro:
+
+```bash
+VITE_NEXO_AI_ENDPOINT=https://seu-backend.exemplo.com/api/nexo-ai
+```
+
+O frontend envia `question`, `messages` e `context`. O endpoint deve devolver:
+
+```json
+{
+  "answer": "Resposta em português",
+  "sources": ["Nexo Entrega", "Ativo 360"],
+  "confidence": 0.93
+}
+```
+
+A chave do provedor de IA deve permanecer exclusivamente no backend. Nunca use `VITE_ANTHROPIC_API_KEY`, `VITE_OPENAI_API_KEY` ou qualquer segredo no GitHub Pages, pois variáveis Vite são incorporadas ao JavaScript público.

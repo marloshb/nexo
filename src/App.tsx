@@ -260,7 +260,7 @@ export default function App() {
       </div>
 
       <FooterBar events={events} agents={AGENTS} demoRunning={demoRunning} onToggleDemo={toggleDemo} demoDone={demoDone} />
-      <AskNexoPanel open={askOpen} onClose={() => setAskOpen(false)} />
+      <AskNexoPanel open={askOpen} onClose={() => setAskOpen(false)} product={product} activeAssetId={activeAssetId} />
     </div>
   );
 }
