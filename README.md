@@ -319,3 +319,33 @@ A aplicação inclui uma base local extensa em `src/data/realisticPortfolioData.
 Volumes adicionais: 120 ativos, 32 fontes de capital, 220 oportunidades, 60 casos de estruturação, 180 alternativas, 270 medições, 800 evidências, 480 indicadores, 360 execuções de agentes e 1.200 logs.
 
 Referências conceituais: IBGE Cidades e Estados; FINISA/CAIXA; Programas de Aplicação do FGTS; Transferegov; Obrasgov/CIPI.
+
+## Camadas geoespaciais ampliadas
+
+Os mapas compartilhados agora oferecem dois modos: a visualização sintética original e uma visão ArcGIS real, acessível pelo botão **Abrir ArcGIS**. A visão ArcGIS preserva os dados embarcados e adiciona um catálogo de camadas públicas com carregamento isolado e fallback.
+
+Camadas públicas configuradas:
+
+- ESA WorldCover 2021 — 10 m;
+- Sentinel-2 Land Use/Land Cover Time Series;
+- WorldPop Population Density — 100 m;
+- Populated Footprint 2020;
+- Gridded Population of the World v4;
+- Cities of the World;
+- World Population Footprint;
+- cenário global de cobertura do solo 2050.
+
+Camadas operacionais locais, geradas a partir dos arquivos embarcados:
+
+- ativos financiados e acompanhados;
+- hotspots de evidências e inconsistências;
+- equipes e ordens de vistoria;
+- concentrações de beneficiários;
+- alertas climáticos associados aos ativos;
+- dependências entre ativos e redes.
+
+As camadas públicas são carregadas diretamente do ArcGIS Online por `portalItem`. Uma falha externa não interrompe o mapa nem as camadas locais. Para uso de basemaps e serviços que exijam autenticação, configure uma API key restrita por domínio:
+
+```env
+VITE_ARCGIS_API_KEY=sua_chave_restrita
+```

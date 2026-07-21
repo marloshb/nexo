@@ -1,0 +1,23 @@
+{
+  "platform": "ArcGIS Maps SDK for JavaScript 5.1",
+  "loadedFrom": "https://js.arcgis.com/5.1/",
+  "publicLayers": [
+    {"id":"7bec35d76dd54ea584f98d286571eb84","name":"ESA WorldCover 2021","theme":"land-cover"},
+    {"id":"cfcb7609de5f478eb7666240902d4d3d","name":"Sentinel-2 Land Use/Land Cover Time Series","theme":"land-cover-timeseries"},
+    {"id":"c90197b8948948d7b2194e1b03b11d1e","name":"WorldPop Population Density 100m","theme":"population"},
+    {"id":"564afc8398874a659e6bd964ce783f1d","name":"Populated Footprint 2020","theme":"settlement"},
+    {"id":"a9fea1ecd1ba4f7db80a0f667fbc508b","name":"Gridded Population of the World v4","theme":"population"},
+    {"id":"029cb24160194f9eaa5fac3f609f8fde","name":"Cities of the World","theme":"urban-centers"},
+    {"id":"ee79c2488ed44ee4ad34460e574c0ce2","name":"World Population Footprint","theme":"settlement"},
+    {"id":"cee96e0ada6541d0bd3d67f3f8b5ce63","name":"Land Cover 2050","theme":"scenario"}
+  ],
+  "embeddedPublishableLayers": [
+    "Ativos financiados e acompanhados",
+    "Hotspots de evidências e inconsistências",
+    "Equipes e ordens de vistoria",
+    "Concentrações de beneficiários",
+    "Alertas climáticos associados aos ativos",
+    "Dependências entre ativos e redes"
+  ],
+  "note": "Os registros operacionais são sintéticos e embarcados. As camadas públicas são referenciadas por portalItem e permanecem sob responsabilidade de seus respectivos provedores."
+}

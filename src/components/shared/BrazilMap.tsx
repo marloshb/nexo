@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArcGISOperationalMap } from '@/components/shared/ArcGISOperationalMap';
 import { BR_STATES, BR_VIEWBOX, project } from '@/data/brazilMap';
 import { STATUS_META, REGION_COLOR, type StatusKey } from '@/lib/tokens';
 import type { Asset } from '@/data/mockData';
@@ -20,6 +21,29 @@ export function BrazilMap({
 }: BrazilMapProps) {
   const [hoverAsset, setHoverAsset] = useState<Asset | null>(null);
   const [hoverUF, setHoverUF] = useState<string | null>(null);
+  const [mapMode, setMapMode] = useState<'synthetic' | 'arcgis'>('synthetic');
+
+  if (mapMode === 'arcgis') {
+    return (
+      <div className="relative w-full" style={{ height }}>
+        <ArcGISOperationalMap
+          points={assets.map((asset) => ({
+            id: asset.id, name: asset.name, lat: asset.lat, lon: asset.lon, city: asset.city, uf: asset.uf,
+            status: String(asset.status), sector: 'Ativo financiado',
+            value: Number((asset as Asset & { value?: number }).value ?? 0),
+            beneficiaries: Number((asset as Asset & { beneficiaries?: number }).beneficiaries ?? 0),
+          }))}
+          selectedId={selectedId}
+          onSelectPoint={onSelectAsset}
+          height={height}
+          context="Portfólio Capital–Ativo"
+        />
+        <button onClick={() => setMapMode('synthetic')} className="absolute left-3 top-12 z-30 flex items-center gap-1.5 rounded-lg border border-white/12 bg-[#071521]/90 px-2.5 py-1.5 text-[10px] text-neutral-200 shadow-xl backdrop-blur-md hover:bg-[#0B2235]">
+          <Icon name="Map" size={12}/>Visão sintética
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full" style={{ height }}>
@@ -108,9 +132,9 @@ export function BrazilMap({
         </div>
       )}
 
-      <div className="absolute top-2 right-2 flex items-center gap-1.5 rounded-md bg-[#071521]/70 backdrop-blur-sm px-2 py-1 text-[10px] text-neutral-500">
-        <Icon name="MapPinned" size={11} />
-        <span>Camada sintética · integração de produção via ArcGIS Maps SDK 5.1</span>
+      <div className="absolute top-2 right-2 flex items-center gap-1.5 rounded-md bg-[#071521]/82 backdrop-blur-sm p-1 text-[10px] text-neutral-500">
+        <span className="flex items-center gap-1.5 px-1.5"><Icon name="MapPinned" size={11} />Visão sintética</span>
+        <button onClick={() => setMapMode('arcgis')} className="rounded bg-[#1584D1] px-2 py-1 text-white hover:bg-[#1879B9]"><Icon name="Layers3" size={11} className="mr-1 inline"/>Abrir ArcGIS</button>
       </div>
     </div>
   );
@@ -122,6 +146,10 @@ export function GeoDotMap({
   points, height = 320, onSelectPoint, selectedId,
 }: { points: GeoDotPoint[]; height?: number; onSelectPoint?: (id: string) => void; selectedId?: string | null }) {
   const [hover, setHover] = useState<GeoDotPoint | null>(null);
+  const [mapMode, setMapMode] = useState<'synthetic' | 'arcgis'>('synthetic');
+  if (mapMode === 'arcgis') {
+    return <div className="relative w-full" style={{ height }}><ArcGISOperationalMap points={points.map((point) => ({ ...point, status: 'ativa', sublabel: point.sublabel }))} height={height} selectedId={selectedId} onSelectPoint={onSelectPoint} context="Oportunidades e sinais territoriais"/><button onClick={() => setMapMode('synthetic')} className="absolute left-3 top-12 z-30 rounded-lg border border-white/12 bg-[#071521]/90 px-2.5 py-1.5 text-[10px] text-neutral-200 shadow-xl backdrop-blur-md"><Icon name="Map" size={12} className="mr-1 inline"/>Visão sintética</button></div>;
+  }
   return (
     <div className="relative w-full" style={{ height }}>
       <svg viewBox={BR_VIEWBOX} className="w-full h-full" style={{ overflow: 'visible' }}>
@@ -139,6 +167,7 @@ export function GeoDotMap({
           );
         })}
       </svg>
+      <button onClick={() => setMapMode('arcgis')} className="absolute right-2 top-2 z-10 rounded-md bg-[#1584D1] px-2 py-1 text-[9.5px] text-white shadow-lg hover:bg-[#1879B9]"><Icon name="Layers3" size={10} className="mr-1 inline"/>Abrir ArcGIS</button>
       {hover && (
         <div
           className="absolute z-10 pointer-events-none rounded-lg border border-white/15 bg-[#0B2235] px-3 py-2 text-[11.5px] shadow-xl nexo-fade-in"
