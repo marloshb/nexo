@@ -385,13 +385,54 @@ declare global {
   }
 }
 
-async function waitForArcGIS(timeoutMs = 12000) {
-  const started = Date.now();
-  while (!window.$arcgis?.import) {
-    if (Date.now() - started > timeoutMs) throw new Error('O CDN do ArcGIS Maps SDK 5.1 não respondeu dentro do tempo esperado.');
-    await new Promise((resolve) => window.setTimeout(resolve, 120));
+let arcgisLoaderPromise: Promise<NonNullable<Window["$arcgis"]>> | null = null;
+
+function ensureArcGISAssets() {
+  const cssId = 'arcgis-sdk-css';
+  if (!document.getElementById(cssId)) {
+    const link = document.createElement('link');
+    link.id = cssId;
+    link.rel = 'stylesheet';
+    link.href = 'https://js.arcgis.com/5.1/esri/themes/dark/main.css';
+    document.head.appendChild(link);
   }
-  return window.$arcgis;
+
+  if (window.$arcgis?.import) return Promise.resolve(window.$arcgis);
+  if (arcgisLoaderPromise) return arcgisLoaderPromise;
+
+  arcgisLoaderPromise = new Promise((resolve, reject) => {
+    const existing = document.getElementById('arcgis-sdk-script') as HTMLScriptElement | null;
+    const script = existing ?? document.createElement('script');
+    const timeout = window.setTimeout(() => reject(new Error('O CDN do ArcGIS Maps SDK não respondeu dentro do tempo esperado.')), 15000);
+
+    const finish = () => {
+      window.clearTimeout(timeout);
+      if (window.$arcgis?.import) resolve(window.$arcgis);
+      else reject(new Error('O ArcGIS Maps SDK foi carregado, mas o importador global não ficou disponível.'));
+    };
+
+    script.addEventListener('load', finish, { once: true });
+    script.addEventListener('error', () => {
+      window.clearTimeout(timeout);
+      reject(new Error('Não foi possível carregar o ArcGIS Maps SDK. Verifique a conexão ou as políticas de conteúdo do navegador.'));
+    }, { once: true });
+
+    if (!existing) {
+      script.id = 'arcgis-sdk-script';
+      script.type = 'module';
+      script.src = 'https://js.arcgis.com/5.1/';
+      document.head.appendChild(script);
+    }
+  }).catch((error) => {
+    arcgisLoaderPromise = null;
+    throw error;
+  });
+
+  return arcgisLoaderPromise;
+}
+
+async function waitForArcGIS() {
+  return ensureArcGISAssets();
 }
 
 export { money };

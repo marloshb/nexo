@@ -349,3 +349,7 @@ As camadas públicas são carregadas diretamente do ArcGIS Online por `portalIte
 ```env
 VITE_ARCGIS_API_KEY=sua_chave_restrita
 ```
+
+## Correção de tela branca após integração ArcGIS
+
+O ArcGIS Maps SDK é carregado sob demanda somente quando o usuário abre a visão ArcGIS. Assim, indisponibilidade do CDN, CSP corporativa, bloqueadores ou falha de uma camada pública não impedem a inicialização da home. A aplicação também possui uma barreira global de erro para exibir uma mensagem diagnóstica em vez de uma página vazia.
