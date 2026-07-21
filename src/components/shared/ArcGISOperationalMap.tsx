@@ -69,7 +69,8 @@ export function ArcGISOperationalMap({ points, height = 420, selectedId, onSelec
     let cleanup: (() => void) | undefined;
 
     async function initialize() {
-      if (!mapDiv.current) return;
+      const container = mapDiv.current;
+      if (!(container instanceof HTMLDivElement)) return;
       try {
         const arcgis = await waitForArcGIS();
         if (!arcgis) throw new Error('ArcGIS Maps SDK indisponível.');
@@ -84,21 +85,26 @@ export function ArcGISOperationalMap({ points, height = 420, selectedId, onSelec
           "@arcgis/core/config.js",
         ]);
 
-        if (cancelled) return;
+        if (cancelled || !container.isConnected) return;
         const apiKey = import.meta.env.VITE_ARCGIS_API_KEY as string | undefined;
         if (apiKey) esriConfig.apiKey = apiKey;
 
         const map = new Map({ basemap: 'osm' as any });
         const view = new MapView({
-          container: mapDiv.current as HTMLDivElement,
+          container,
           map,
           center: [-52.7, -14.2],
           zoom: 4,
           constraints: { minZoom: 3, maxZoom: 18 },
           popup: { dockEnabled: true, dockOptions: { position: 'bottom-right', buttonEnabled: false } },
-          ui: { components: ['attribution', 'zoom'] },
+          // A partir do SDK 5, a atribuição deixou de ser um item do DefaultUI.
+          // Informá-la em ui.components faz a UI tentar anexar um valor que não é Node.
+          ui: { components: ['zoom'] },
         });
         viewRef.current = view;
+
+        // Evita resíduos de uma inicialização anterior em React StrictMode.
+        // O MapView utiliza o próprio container capturado acima durante todo o ciclo.
 
         const assetGraphics = mapPoints.map((p, index) => new Graphic({
           geometry: new Point({ longitude: p.lon, latitude: p.lat }),
@@ -288,7 +294,13 @@ export function ArcGISOperationalMap({ points, height = 420, selectedId, onSelec
           if (id) onSelectPoint?.(id);
         });
         setReady(true);
-        cleanup = () => { clickHandle.remove(); view.destroy(); };
+        cleanup = () => {
+          clickHandle.remove();
+          if (viewRef.current === view) viewRef.current = null;
+          view.container = null;
+          view.destroy();
+          container.replaceChildren();
+        };
       } catch (error) {
         setFatalError(error instanceof Error ? error.message : 'Não foi possível iniciar o ArcGIS Maps SDK.');
       }

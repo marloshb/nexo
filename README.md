@@ -353,3 +353,11 @@ VITE_ARCGIS_API_KEY=sua_chave_restrita
 ## Correção de tela branca após integração ArcGIS
 
 O ArcGIS Maps SDK é carregado sob demanda somente quando o usuário abre a visão ArcGIS. Assim, indisponibilidade do CDN, CSP corporativa, bloqueadores ou falha de uma camada pública não impedem a inicialização da home. A aplicação também possui uma barreira global de erro para exibir uma mensagem diagnóstica em vez de uma página vazia.
+
+## Painel de contexto funcional
+
+O painel lateral preserva a estrutura visual original e agora oferece ações operacionais locais: abertura de recomendações no Nexo Agents, detalhamento de riscos, navegação para o Ativo 360, pré-visualização e exportação de documentos, contatos dos responsáveis, conclusão/reabertura de marcos, criação simulada de vistoria, geração de relatório, emissão de despacho e exportação JSON do contexto. Todas as interações funcionam sem backend e publicam eventos no barramento local da aplicação.
+
+## Correção ArcGIS MapView — appendChild
+
+O `MapView` não inclui mais `attribution` entre os componentes do `DefaultUI` no ArcGIS Maps SDK 5.x. A configuração anterior tentava adicioná-lo manualmente em `ui.components`, provocando `Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'`. O mapa agora usa apenas `zoom`, mantém a atribuição nativa da View, captura um `HTMLDivElement` estável antes da inicialização e destrói corretamente a View em remontagens do React.

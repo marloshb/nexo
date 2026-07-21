@@ -307,7 +307,16 @@ export default function App() {
           )}
         </main>
 
-        {product !== 'ativo360' && rightPanelOpen && <RightPanel onClose={() => setRightPanelOpen(false)} />}
+        {product !== 'ativo360' && rightPanelOpen && (
+          <RightPanel
+            onClose={() => setRightPanelOpen(false)}
+            product={product}
+            onNavigate={setProduct}
+            onOpenAsset={(id) => openAsset(id, product)}
+            onOpenAsk={() => setAskOpen(true)}
+            onPushEvent={pushEvent}
+          />
+        )}
         {product !== 'ativo360' && !rightPanelOpen && (
           <button
             onClick={() => setRightPanelOpen(true)}
