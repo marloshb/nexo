@@ -20,6 +20,7 @@ import { Ativo360View } from '@/components/views/Ativo360View';
 import { ASSETS, INITIAL_EVENTS, DEMO_SCRIPT, INITIAL_AUDIT, AGENTS, type AuditEntry, type EventItem } from '@/data/mockData';
 import type { ProductKey } from '@/data/navConfig';
 import type { ControlSection } from '@/data/controlData';
+import type { CapitalSection } from '@/data/capitalData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -32,6 +33,7 @@ export default function App() {
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
   const [controlSection, setControlSection] = useState<ControlSection>('overview');
+  const [capitalSection, setCapitalSection] = useState<CapitalSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -115,8 +117,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : undefined}
           />
         )}
 
@@ -138,7 +140,16 @@ export default function App() {
           )}
           {product === 'evidencia' && <EvidenciaView vistoriaStage={vistoriaStage} demoStepIdx={demoStepIdx} demoRunning={demoRunning} />}
           {product === 'agents' && <AgentsView />}
-          {product === 'capital' && <CapitalView />}
+          {product === 'capital' && (
+            <CapitalView
+              section={capitalSection}
+              onSectionChange={setCapitalSection}
+              onOpenAsset={(id) => openAsset(id, 'capital')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'carteira' && <CarteiraView onOpenProduct={() => setProduct('estrutura')} />}
           {product === 'estrutura' && <EstruturaView />}
           {product === 'contrata' && <ContrataView />}

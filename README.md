@@ -125,3 +125,20 @@ O módulo **Nexo Control** passou a ter navegação funcional em todas as opçõ
 - Administração.
 
 Foram incluídos dados sintéticos coerentes, vínculos com os demais produtos Nexo, workflows, decisões com SLA, simulações, relatórios, sincronizações demonstrativas e um ciclo de agentes ao vivo. As decisões críticas continuam exigindo gate humano.
+
+## Nexo Capital — implementação funcional
+
+O módulo Nexo Capital foi ampliado para cobrir todas as entradas do menu lateral:
+
+- Visão geral corporativa de funding, utilização, saldo, custo e covenants;
+- Fontes de capital com busca, filtros, Passaporte do Capital e cadastro multiagente;
+- Programas e envelopes com simulador de alocação e submissão ao comitê;
+- Covenants com workflow assistido, evidências e gate humano;
+- Mapa territorial da aplicação do capital e conexão com o Ativo 360;
+- Analytics de liquidez, concentração, risco e previsão de desembolso;
+- Central de agentes com execução live e eventos em tempo real;
+- Biblioteca e geração dinâmica de relatórios;
+- Monitoramento e sincronização das integrações;
+- Administração de regras, taxonomias, perfis e alçadas.
+
+Todos os dados e identificadores deste módulo são sintéticos e destinados exclusivamente à demonstração funcional.
