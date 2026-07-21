@@ -192,3 +192,16 @@ O módulo **Nexo Contrata** foi implementado integralmente e integrado aos produ
 - Administração de regras, alçadas, guardrails, integrações e governança de IA.
 
 O ciclo ao vivo simula elegibilidade, análise documental, risco integrado, diligências, preparação de decisão e geração da baseline contratual. Aprovação, reprovação, suspensão, contratação e exceções permanecem condicionadas a decisão humana. Todos os dados e identificadores do módulo são sintéticos.
+
+## Nexo Entrega — implementação funcional
+
+O módulo Nexo Entrega inclui visão executiva, cronograma, mapa operacional, fila de medições, desembolsos, workflows, analytics, agentes, relatórios e integrações. O fluxo sintético principal conecta medição, validação automática, inconsistência geoespacial, vistoria, gate humano e liquidação financeira.
+
+Principais arquivos:
+
+- `src/components/views/EntregaView.tsx`
+- `src/data/entregaData.ts`
+- `src/data/navConfig.ts`
+- `src/App.tsx`
+
+Todos os projetos, contratos, valores, pessoas, eventos e decisões são dados sintéticos de demonstração.

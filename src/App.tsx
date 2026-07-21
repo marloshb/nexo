@@ -24,6 +24,7 @@ import type { CapitalSection } from '@/data/capitalData';
 import type { CarteiraSection } from '@/data/carteiraData';
 import type { EstruturaSection } from '@/data/estruturaData';
 import type { ContrataSection } from '@/data/contrataData';
+import type { EntregaSection } from '@/data/entregaData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -40,6 +41,7 @@ export default function App() {
   const [carteiraSection, setCarteiraSection] = useState<CarteiraSection>('overview');
   const [estruturaSection, setEstruturaSection] = useState<EstruturaSection>('overview');
   const [contrataSection, setContrataSection] = useState<ContrataSection>('overview');
+  const [entregaSection, setEntregaSection] = useState<EntregaSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -123,8 +125,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : product === 'entrega' ? entregaSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : product === 'entrega' ? (id) => setEntregaSection(id as EntregaSection) : undefined}
           />
         )}
 
@@ -142,7 +144,17 @@ export default function App() {
           )}
           {product === 'ativos' && <AtivosView onOpenAsset={(id) => openAsset(id, 'ativos')} />}
           {product === 'entrega' && (
-            <EntregaView onOpenAsset={(id) => openAsset(id, 'entrega')} vistoriaStage={vistoriaStage} onDecision={handleDecision} decision={decision} />
+            <EntregaView
+              section={entregaSection}
+              onSectionChange={setEntregaSection}
+              onOpenAsset={(id) => openAsset(id, 'entrega')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+              vistoriaStage={vistoriaStage}
+              onDecision={handleDecision}
+              decision={decision}
+            />
           )}
           {product === 'evidencia' && <EvidenciaView vistoriaStage={vistoriaStage} demoStepIdx={demoStepIdx} demoRunning={demoRunning} />}
           {product === 'agents' && <AgentsView />}
