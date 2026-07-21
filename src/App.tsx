@@ -1,0 +1,155 @@
+import { useEffect, useRef, useState } from 'react';
+import { TopBar } from '@/components/shell/TopBar';
+import { Sidebar } from '@/components/shell/Sidebar';
+import { RightPanel } from '@/components/shell/RightPanel';
+import { FooterBar } from '@/components/shell/FooterBar';
+import { AskNexoPanel } from '@/components/AskNexo';
+import { HubView } from '@/components/views/HubView';
+import { ControlView } from '@/components/views/ControlView';
+import { AtivosView } from '@/components/views/AtivosView';
+import { EntregaView } from '@/components/views/EntregaView';
+import { EvidenciaView } from '@/components/views/EvidenciaView';
+import { AgentsView } from '@/components/views/AgentsView';
+import { CapitalView } from '@/components/views/CapitalView';
+import { CarteiraView } from '@/components/views/CarteiraView';
+import { EstruturaView } from '@/components/views/EstruturaView';
+import { ContrataView } from '@/components/views/ContrataView';
+import { ImpactoView } from '@/components/views/ImpactoView';
+import { DataView } from '@/components/views/DataView';
+import { Ativo360View } from '@/components/views/Ativo360View';
+import { ASSETS, INITIAL_EVENTS, DEMO_SCRIPT, INITIAL_AUDIT, AGENTS, type AuditEntry, type EventItem } from '@/data/mockData';
+import type { ProductKey } from '@/data/navConfig';
+import { nowStr } from '@/lib/tokens';
+
+export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
+
+export default function App() {
+  const [product, setProductState] = useState<ProductKey>('hub');
+  const [prevProduct, setPrevProduct] = useState<ProductKey>('hub');
+  const [activeAssetId, setActiveAssetId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [askOpen, setAskOpen] = useState(false);
+
+  const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
+  const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
+  const [vistoriaStage, setVistoriaStage] = useState<VistoriaStage>('agendada');
+  const [decision, setDecision] = useState<string | null>(null);
+  const [demoRunning, setDemoRunning] = useState(false);
+  const [demoStepIdx, setDemoStepIdx] = useState(0);
+  const auditIdRef = useRef(1000);
+
+  function setProduct(p: ProductKey) {
+    setProductState(p);
+  }
+
+  function openAsset(id: string, from?: ProductKey) {
+    setPrevProduct(from ?? product);
+    setActiveAssetId(id);
+    setProductState('ativo360');
+  }
+  function closeAsset() {
+    setProductState(prevProduct);
+    setActiveAssetId(null);
+  }
+
+  function pushEvent(text: string, type: EventItem['type']) {
+    setEvents((prev) => [...prev, { t: nowStr(), text, type }]);
+  }
+  function pushAudit(action: string, detail: string) {
+    auditIdRef.current += 1;
+    setAuditTrail((prev) => [{ id: auditIdRef.current, t: nowStr(), user: 'Marlos Batista', action, detail }, ...prev]);
+  }
+
+  useEffect(() => {
+    if (!demoRunning) return;
+    if (demoStepIdx >= DEMO_SCRIPT.length) {
+      setDemoRunning(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      const step = DEMO_SCRIPT[demoStepIdx];
+      pushEvent(step.text, step.type);
+      if (step.vistoriaStage) setVistoriaStage(step.vistoriaStage as VistoriaStage);
+      setDemoStepIdx((i) => i + 1);
+    }, 1900);
+    return () => clearTimeout(timer);
+  }, [demoRunning, demoStepIdx]);
+
+  function toggleDemo() {
+    setDemoRunning((v) => !v);
+  }
+
+  function handleDecision(action: 'parcial' | 'diligenciar' | 'suspender') {
+    const label =
+      action === 'parcial'
+        ? 'Desembolso parcial aprovado: R$ 15,7 milhões liberados; R$ 2,65 milhões mantidos retidos até nova verificação.'
+        : action === 'diligenciar'
+        ? 'Diligência aberta para os itens divergentes — proponente notificado para manifestação em até 5 dias úteis.'
+        : 'Trecho T-22 suspenso — execução interrompida até resolução da divergência geométrica.';
+    setDecision(label);
+    pushAudit(
+      action === 'parcial' ? 'Desembolso parcial aprovado' : action === 'diligenciar' ? 'Diligência aberta' : 'Trecho suspenso',
+      label
+    );
+    pushEvent(`Decisão registrada: ${label}`, 'success');
+  }
+
+  const asset = ASSETS.find((a) => a.id === activeAssetId) ?? null;
+  const demoDone = demoStepIdx >= DEMO_SCRIPT.length;
+
+  return (
+    <div className="w-full min-h-screen flex flex-col" style={{ background: '#071521' }}>
+      <TopBar
+        product={product}
+        onNavigateHub={() => setProduct('hub')}
+        onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
+        onOpenAsk={() => setAskOpen(true)}
+        onSelectAsset={(id) => openAsset(id, product)}
+      />
+      <div className="flex flex-1 min-h-0">
+        {product !== 'ativo360' && <Sidebar product={product} collapsed={sidebarCollapsed} onNavigate={setProduct} />}
+
+        <main className="flex-1 min-w-0 overflow-y-auto nexo-scroll">
+          {product === 'hub' && <HubView onOpenProduct={setProduct} onOpenAsset={(id) => openAsset(id, 'hub')} />}
+          {product === 'control' && <ControlView onOpenAsset={(id) => openAsset(id, 'control')} events={events} />}
+          {product === 'ativos' && <AtivosView onOpenAsset={(id) => openAsset(id, 'ativos')} />}
+          {product === 'entrega' && (
+            <EntregaView onOpenAsset={(id) => openAsset(id, 'entrega')} vistoriaStage={vistoriaStage} onDecision={handleDecision} decision={decision} />
+          )}
+          {product === 'evidencia' && <EvidenciaView vistoriaStage={vistoriaStage} demoStepIdx={demoStepIdx} demoRunning={demoRunning} />}
+          {product === 'agents' && <AgentsView />}
+          {product === 'capital' && <CapitalView />}
+          {product === 'carteira' && <CarteiraView onOpenProduct={() => setProduct('estrutura')} />}
+          {product === 'estrutura' && <EstruturaView />}
+          {product === 'contrata' && <ContrataView />}
+          {product === 'impacto' && <ImpactoView />}
+          {product === 'data' && <DataView />}
+          {product === 'ativo360' && asset && (
+            <Ativo360View
+              asset={asset}
+              onClose={closeAsset}
+              vistoriaStage={vistoriaStage}
+              decision={decision}
+              auditTrail={auditTrail}
+              onNavigateProduct={(p) => setProduct(p)}
+            />
+          )}
+        </main>
+
+        {product !== 'ativo360' && rightPanelOpen && <RightPanel onClose={() => setRightPanelOpen(false)} />}
+        {product !== 'ativo360' && !rightPanelOpen && (
+          <button
+            onClick={() => setRightPanelOpen(true)}
+            className="w-8 shrink-0 border-l border-white/10 bg-[#0B2235]/70 flex items-start justify-center pt-3 text-neutral-500 hover:text-neutral-300"
+          >
+            <span style={{ writingMode: 'vertical-rl' }} className="text-[10px] tracking-wide">CONTEXTO</span>
+          </button>
+        )}
+      </div>
+
+      <FooterBar events={events} agents={AGENTS} demoRunning={demoRunning} onToggleDemo={toggleDemo} demoDone={demoDone} />
+      <AskNexoPanel open={askOpen} onClose={() => setAskOpen(false)} />
+    </div>
+  );
+}

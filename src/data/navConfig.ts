@@ -1,0 +1,62 @@
+// Configuração de navegação: produtos, menu lateral por produto e conteúdo dos stubs (V2).
+
+export type ProductKey =
+  | 'hub' | 'control' | 'capital' | 'carteira' | 'estrutura' | 'contrata'
+  | 'entrega' | 'evidencia' | 'ativos' | 'impacto' | 'agents' | 'data' | 'ativo360';
+
+export interface NavProduct {
+  key: ProductKey;
+  name: string;
+  tagline: string;
+  iconKey: string;
+  color: string;
+  builtV1: boolean; // true = profundidade funcional; false = stub estrutural (V2)
+}
+
+export const NAV_PRODUCTS: NavProduct[] = [
+  { key: 'control',   name: 'Nexo Control',   tagline: 'Centro de comando executivo e operacional',        iconKey: 'Gauge',        color: '#1584D1', builtV1: true },
+  { key: 'capital',   name: 'Nexo Capital',   tagline: 'Funding, captação, programas e alocação',           iconKey: 'DollarSign',   color: '#087C78', builtV1: true },
+  { key: 'carteira',  name: 'Nexo Carteira',  tagline: 'Originação, projetos e priorização',                iconKey: 'Briefcase',    color: '#1584D1', builtV1: true },
+  { key: 'estrutura', name: 'Nexo Estrutura', tagline: 'Modelagem técnica, financeira e territorial',       iconKey: 'Layers',       color: '#7C5CBF', builtV1: true },
+  { key: 'contrata',  name: 'Nexo Contrata',  tagline: 'Elegibilidade, risco, aprovações e contratação',     iconKey: 'ClipboardCheck', color: '#E5A11A', builtV1: true },
+  { key: 'entrega',   name: 'Nexo Entrega',   tagline: 'Execução, medição, desembolso e destravamento',     iconKey: 'HardHat',      color: '#18B7D6', builtV1: true },
+  { key: 'evidencia', name: 'Nexo Evidência', tagline: 'Vistorias, documentos, imagens e cadeia de custódia', iconKey: 'ShieldCheck',  color: '#0FA39D', builtV1: true },
+  { key: 'ativos',    name: 'Nexo Ativos',    tagline: 'Comissionamento, operação, manutenção e resiliência', iconKey: 'Building2',   color: '#1584D1', builtV1: true },
+  { key: 'impacto',   name: 'Nexo Impacto',   tagline: 'Indicadores, MRV, resultados e prestação de contas',  iconKey: 'Sprout',       color: '#0FA39D', builtV1: true },
+  { key: 'agents',    name: 'Nexo Agents',    tagline: 'Central de agentes, automações e despachos',         iconKey: 'Bot',          color: '#18B7D6', builtV1: true },
+  { key: 'data',      name: 'Nexo Data',      tagline: 'Dados, integrações, qualidade e governança',         iconKey: 'Database',     color: '#9AACB8', builtV1: true },
+];
+
+export interface SidebarItem { label: string; iconKey: string; }
+const STD = {
+  visao: { label: 'Visão geral', iconKey: 'LayoutGrid' },
+  mapa: { label: 'Mapa', iconKey: 'Map' },
+  operacoes: { label: 'Operações', iconKey: 'Activity' },
+  workflows: { label: 'Workflows', iconKey: 'Workflow' },
+  analytics: { label: 'Analytics', iconKey: 'BarChart3' },
+  agentes: { label: 'Agentes', iconKey: 'Bot' },
+  relatorios: { label: 'Relatórios', iconKey: 'FileText' },
+  integracoes: { label: 'Integrações', iconKey: 'Plug' },
+  administracao: { label: 'Administração', iconKey: 'Settings' },
+};
+
+export const SIDEBAR_CONFIG: Record<ProductKey, SidebarItem[]> = {
+  hub: [],
+  control: [
+    STD.visao, { label: 'Sala de situação', iconKey: 'Radio' }, STD.mapa,
+    { label: 'Agenda crítica', iconKey: 'AlertTriangle' }, { label: 'Simulador', iconKey: 'SlidersHorizontal' },
+    STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao,
+  ],
+  capital: [STD.visao, { label: 'Fontes de capital', iconKey: 'Landmark' }, { label: 'Programas e envelopes', iconKey: 'Package' }, { label: 'Covenants', iconKey: 'FileWarning' }, STD.mapa, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao],
+  carteira: [STD.visao, { label: 'Radar territorial', iconKey: 'Radar' }, { label: 'Oportunidades', iconKey: 'Sparkles' }, { label: 'Priorização', iconKey: 'ListOrdered' }, STD.mapa, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao],
+  estrutura: [STD.visao, { label: 'Alternativas', iconKey: 'GitBranch' }, { label: 'Modelo financeiro', iconKey: 'Calculator' }, { label: 'Cenários', iconKey: 'Layers' }, STD.mapa, STD.analytics, STD.agentes, STD.relatorios, STD.administracao],
+  contrata: [STD.visao, { label: 'Fila de análises', iconKey: 'ListChecks' }, { label: 'Riscos', iconKey: 'ShieldAlert' }, { label: 'Comitê', iconKey: 'Users' }, STD.workflows, STD.analytics, STD.agentes, STD.relatorios, STD.administracao],
+  entrega: [STD.visao, { label: 'Cronograma', iconKey: 'CalendarClock' }, STD.mapa, { label: 'Medições', iconKey: 'Ruler' }, { label: 'Desembolsos', iconKey: 'Banknote' }, STD.workflows, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes],
+  evidencia: [STD.visao, { label: 'Visualizador', iconKey: 'Images' }, { label: 'Vistorias', iconKey: 'ClipboardCheck' }, { label: 'Cadeia de custódia', iconKey: 'Link2' }, STD.mapa, STD.agentes, STD.relatorios],
+  ativos: [STD.visao, { label: 'Portfólio', iconKey: 'Building2' }, STD.mapa, { label: 'Saúde', iconKey: 'HeartPulse' }, { label: 'Manutenção', iconKey: 'Wrench' }, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes],
+  impacto: [STD.visao, { label: 'Indicadores', iconKey: 'Target' }, { label: 'Beneficiários', iconKey: 'Users' }, STD.mapa, STD.relatorios, STD.administracao],
+  agents: [{ label: 'Cockpit', iconKey: 'LayoutGrid' }, { label: 'Fila de execuções', iconKey: 'ListOrdered' }, { label: 'Casos', iconKey: 'FolderOpen' }, { label: 'Exceções', iconKey: 'AlertOctagon' }, { label: 'Logs', iconKey: 'Terminal' }, { label: 'Alçadas', iconKey: 'Settings' }],
+  data: [STD.visao, { label: 'Catálogo', iconKey: 'Database' }, { label: 'Linhagem', iconKey: 'GitBranch' }, { label: 'Qualidade', iconKey: 'BadgeCheck' }, STD.integracoes, STD.administracao],
+  ativo360: [],
+};
+
