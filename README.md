@@ -227,3 +227,7 @@ Principais arquivos:
 - `src/data/evidenciaData.ts`
 - `src/data/navConfig.ts`
 - `src/App.tsx`
+
+## Nexo Ativos — implementação funcional
+
+O módulo Nexo Ativos foi ampliado com navegação funcional por seção, portfólio, mapa operacional, comissionamento, saúde multidimensional, telemetria sintética, manutenção preditiva, analytics, agentes ao vivo, relatórios e integrações. As decisões críticas permanecem sujeitas a gate humano e todos os dados operacionais são sintéticos para demonstração.
