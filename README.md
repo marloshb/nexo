@@ -176,3 +176,19 @@ O módulo **Nexo Estrutura** foi implementado integralmente, preservando os mód
 
 O ciclo ao vivo simula coleta de dados, comparação de soluções, otimização territorial, recálculo financeiro, análise de dependências e preparação da baseline. A homologação e o encaminhamento ao Nexo Contrata permanecem sujeitos a gate humano. Todos os dados são sintéticos.
 
+
+## Nexo Contrata — implementação funcional ampliada
+
+O módulo **Nexo Contrata** foi implementado integralmente e integrado aos produtos Nexo Control, Capital, Carteira, Estrutura, Entrega, Evidência e Ativo 360.
+
+- Visão geral com indicadores, funil, agenda decisória, riscos, integrações e agentes críticos;
+- Fila de análises com busca, filtros, SLA, elegibilidade, risco, documentos e dossiê completo;
+- Matriz integrada de riscos com exposição, mitigação, responsáveis e agentes;
+- Comitê com pauta, quórum, parecer, votos, fundamentação, gate humano e ata simulada;
+- Workflows em kanban com triagem automática, análise, diligência, decisão e formalização;
+- Analytics de aprovação, tempo, retrabalho, gargalos e insights explicáveis;
+- Central de agentes com execução ao vivo, progresso, fontes, confiança e recomendações;
+- Relatórios dinâmicos, pacote de comitê, baseline e exportação CSV;
+- Administração de regras, alçadas, guardrails, integrações e governança de IA.
+
+O ciclo ao vivo simula elegibilidade, análise documental, risco integrado, diligências, preparação de decisão e geração da baseline contratual. Aprovação, reprovação, suspensão, contratação e exceções permanecem condicionadas a decisão humana. Todos os dados e identificadores do módulo são sintéticos.

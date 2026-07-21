@@ -23,6 +23,7 @@ import type { ControlSection } from '@/data/controlData';
 import type { CapitalSection } from '@/data/capitalData';
 import type { CarteiraSection } from '@/data/carteiraData';
 import type { EstruturaSection } from '@/data/estruturaData';
+import type { ContrataSection } from '@/data/contrataData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -38,6 +39,7 @@ export default function App() {
   const [capitalSection, setCapitalSection] = useState<CapitalSection>('overview');
   const [carteiraSection, setCarteiraSection] = useState<CarteiraSection>('overview');
   const [estruturaSection, setEstruturaSection] = useState<EstruturaSection>('overview');
+  const [contrataSection, setContrataSection] = useState<ContrataSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -121,8 +123,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : undefined}
           />
         )}
 
@@ -174,7 +176,16 @@ export default function App() {
               onPushEvent={pushEvent}
             />
           )}
-          {product === 'contrata' && <ContrataView />}
+          {product === 'contrata' && (
+            <ContrataView
+              section={contrataSection}
+              onSectionChange={setContrataSection}
+              onOpenAsset={(id) => openAsset(id, 'contrata')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'impacto' && <ImpactoView />}
           {product === 'data' && <DataView />}
           {product === 'ativo360' && asset && (
