@@ -205,3 +205,25 @@ Principais arquivos:
 - `src/App.tsx`
 
 Todos os projetos, contratos, valores, pessoas, eventos e decisões são dados sintéticos de demonstração.
+
+## Nexo Evidência — implementação funcional
+
+O módulo **Nexo Evidência** foi implementado integralmente e integrado aos produtos Nexo Entrega, Contrata, Ativos, Impacto, Data e Ativo 360.
+
+- Visão geral com carteira de evidências, confiança, exceções, valor condicionado e operação ao vivo;
+- Visualizador com caixa de entrada, filtros, pré-visualização, metadados, validações, decisão e gate humano;
+- Vistorias com ordens, prioridade, SLA, rota, equipe, checklist offline e atualização de status;
+- Cadeia de custódia com hash, assinatura, versões, acessos, retenção e selagem de pacote;
+- Mapa nacional com ativos, evidências, ordens, anomalias, camadas operacionais e Living Atlas simulado;
+- Central de agentes para ingestão, validação geoespacial, integridade, vistoria, custódia e orquestração;
+- Relatórios auditáveis, pacotes de medição, vistorias, integridade e evidências de resultado;
+- Simulação em tempo real conectando coleta de campo, validação, workflow, custódia e decisão de desembolso.
+
+O ciclo live preserva o gate humano para validação, rejeição, liberação, suspensão e aceite. Todos os ativos, pessoas, valores, evidências e eventos são sintéticos e destinados exclusivamente à demonstração funcional.
+
+Principais arquivos:
+
+- `src/components/views/EvidenciaView.tsx`
+- `src/data/evidenciaData.ts`
+- `src/data/navConfig.ts`
+- `src/App.tsx`
