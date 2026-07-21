@@ -1,1 +1,85 @@
-# nexo
+# CAIXA Nexo — mockup funcional (Versão 1)
+
+Mockup interativo de alta fidelidade da plataforma CAIXA Nexo, construído em React + TypeScript + Vite + Tailwind + shadcn/ui — o mesmo stack usado no GeoComex Integrity.
+
+## Rodar localmente
+
+```bash
+pnpm install
+pnpm dev       # ambiente de desenvolvimento
+pnpm build     # build de produção (dist/)
+```
+
+## O que está implementado (Versão 1 — mockup funcional essencial, seção 31 da especificação)
+
+- **Nexo Hub** — portal corporativo com carteira consolidada, indicadores pessoais e mapa nacional
+- **Nexo Control** — cockpit executivo, sala de situação e simulador de alocação
+- **Nexo Entrega** — cronograma, Medição nº 6 do caso Vale Verde e workflow de decisão de desembolso
+- **Nexo Evidência** — caixa de entrada de evidências, visualizador em 4 áreas e rastreador da vistoria OV-2026-0871
+- **Ativo 360** — passaporte completo do ativo, com as 14 abas da especificação
+- **Nexo Agents** — os 12 agentes de IA da seção 20, com timeline de execução detalhada
+- **Nexo Ativos** — portfólio nacional (tabela + mapa)
+- **Capital / Carteira / Estrutura / Contrata / Impacto / Data** — stubs estruturais navegáveis (profundidade completa é Versão 2)
+- **"Perguntar ao Nexo"** — chamada real à API da Anthropic (Claude), fundamentada no contexto sintético da carteira
+- Todos os dados são sintéticos — ver `src/data/mockData.ts`, `src/data/navConfig.ts` e `src/data/brazilMap.ts`
+
+## Mapa: da versão sintética para o ArcGIS Maps SDK 5.1 real
+
+O mapa atual (`src/components/shared/BrazilMap.tsx`) é um SVG próprio, gerado a partir dos limites reais das 27 UFs (processados uma única vez em `mapdata/`), com uma projeção equirretangular simples embutida em `src/data/brazilMap.ts`. Essa escolha evita depender de rede/API key dentro do ambiente de artifact do Claude, mas o componente foi isolado exatamente para ser substituído.
+
+Para a integração de produção sugerida pela especificação (seção 24):
+
+```bash
+pnpm add @arcgis/core
+```
+
+```ts
+// .env.local
+VITE_ARCGIS_API_KEY=xxxxxxxxxxxxxxxxxxxx   // API key com privilégios mínimos, URLs de referência restritas
+```
+
+```javascript
+import Map from "@arcgis/core/Map.js";
+import MapView from "@arcgis/core/views/MapView.js";
+import ImageryTileLayer from "@arcgis/core/layers/ImageryTileLayer.js";
+import esriConfig from "@arcgis/core/config.js";
+
+esriConfig.apiKey = import.meta.env.VITE_ARCGIS_API_KEY;
+
+const worldCover = new ImageryTileLayer({
+  portalItem: { id: "7bec35d76dd54ea584f98d286571eb84" }, // ESA WorldCover 2021
+  opacity: 0.55,
+});
+
+const map = new Map({ basemap: "arcgis/navigation", layers: [worldCover] });
+const view = new MapView({ container: "map", map, center: [-52, -14], zoom: 4 });
+```
+
+Mantenha um fallback visual (o `BrazilMap.tsx` atual) para demonstrações sem chave configurada, como a própria especificação recomenda.
+
+## Empacotar como artifact único (.html)
+
+```bash
+bash scripts/bundle-artifact.sh   # do skill web-artifacts-builder — gera bundle.html autocontido
+```
+
+## O que foi adicionado na Versão 2
+
+- **Nexo Capital** — painel de funding, passaporte do capital por fonte, programas/envelopes, covenants e fluxo completo de cadastro de nova fonte
+- **Nexo Carteira** — radar territorial, oportunidades, priorização multicritério, funil de originação e comparador
+- **Nexo Estrutura** — comparação de 3 alternativas (UBS Digital Norte), radar comparativo, modelo financeiro, sensibilidade/vida útil e resumo executivo gerado por IA (chamada real à API)
+- **Nexo Contrata** — fila de análises, dossiê com as 14 seções da especificação, matriz de risco e workflow de decisão do comitê (8 tipos de decisão)
+- **Nexo Impacto** — indicadores, cadeia de resultados, beneficiários, mapa de impacto e report builder
+- **Nexo Data** — matriz de integrações detalhada (12 conectores) com drawer de detalhe por conector, catálogo e qualidade
+- **Comissionamento** — fluxo completo de 10 etapas + checklist do Residencial Horizonte Azul, dentro do Nexo Ativos
+
+## Próximos passos (Versão 3, seção 31) — implementada
+
+- **Sensores e telemetria** — `src/components/shared/Sparkline.tsx` simula leituras ao vivo (StreamLayer-style) para vibração, vazão, pressão e temperatura, atualizando a cada ~2,4s
+- **Manutenção preditiva** — previsão de falha por componente (30/90 dias), ordens de serviço e recomendações, no Nexo Ativos → aba Manutenção
+- **Modelos 3D** — `src/components/shared/WindComplexScene.tsx`: cena isométrica em SVG do Complexo Eólico Costa Branca (substitui SceneLayer nesta versão do mockup; ver nota sobre ArcGIS acima)
+- **Mapa em tempo real (StreamLayer-style)** — `src/components/shared/TrechoMap.tsx`: marcador da equipe de vistoria se desloca entre os trechos T-14/T-17/T-22 conforme a simulação avança (Nexo Evidência)
+- **Resiliência climática e reinvestimento** — exposição a risco por ativo e previsão de necessidade de reinvestimento com vida útil remanescente
+- **Índice de saúde completo** — as 10 dimensões da especificação (não apenas 5) para os ativos em operação, no Ativo 360 e no Nexo Ativos
+
+Com isso, as três versões do roteiro da seção 31 estão implementadas nesta mesma base de código.
