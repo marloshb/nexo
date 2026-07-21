@@ -142,3 +142,20 @@ O módulo Nexo Capital foi ampliado para cobrir todas as entradas do menu latera
 - Administração de regras, taxonomias, perfis e alçadas.
 
 Todos os dados e identificadores deste módulo são sintéticos e destinados exclusivamente à demonstração funcional.
+
+## Nexo Carteira — implementação funcional ampliada
+
+O módulo **Nexo Carteira** passou a cobrir todas as opções do menu lateral com navegação funcional e integrações contextuais:
+
+- Visão geral com funil, demanda por setor, mapa, ranking e agentes críticos;
+- Radar territorial com sinais, contexto geográfico e conversão de sinal em oportunidade;
+- Oportunidades com filtros, cadastro, ficha completa, enriquecimento e arquivamento;
+- Priorização multicritério com pesos, cenários, ranking dinâmico e gate humano;
+- Mapa integrado com filtros, camadas temáticas e vínculos com ativos e programas;
+- Analytics do funil, maturidade, demanda, duplicidades e aderência ao funding;
+- Central de agentes com execução ao vivo, progresso, confiança, recomendações e eventos;
+- Biblioteca e geração dinâmica de relatórios e pacotes de decisão;
+- Monitoramento e sincronização das integrações externas e internas;
+- Administração de regras, critérios, perfis e alçadas.
+
+A simulação ao vivo orquestra os agentes de Radar Territorial, Geocodificação, Duplicidades, Enriquecimento, Priorização e Despachos. Aprovações, arquivamentos e encaminhamentos materiais permanecem sujeitos a decisão humana. Todos os registros são sintéticos e destinados exclusivamente à demonstração funcional.

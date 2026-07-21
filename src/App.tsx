@@ -21,6 +21,7 @@ import { ASSETS, INITIAL_EVENTS, DEMO_SCRIPT, INITIAL_AUDIT, AGENTS, type AuditE
 import type { ProductKey } from '@/data/navConfig';
 import type { ControlSection } from '@/data/controlData';
 import type { CapitalSection } from '@/data/capitalData';
+import type { CarteiraSection } from '@/data/carteiraData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -34,6 +35,7 @@ export default function App() {
   const [askOpen, setAskOpen] = useState(false);
   const [controlSection, setControlSection] = useState<ControlSection>('overview');
   const [capitalSection, setCapitalSection] = useState<CapitalSection>('overview');
+  const [carteiraSection, setCarteiraSection] = useState<CarteiraSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -117,8 +119,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : undefined}
           />
         )}
 
@@ -150,7 +152,16 @@ export default function App() {
               onPushEvent={pushEvent}
             />
           )}
-          {product === 'carteira' && <CarteiraView onOpenProduct={() => setProduct('estrutura')} />}
+          {product === 'carteira' && (
+            <CarteiraView
+              section={carteiraSection}
+              onSectionChange={setCarteiraSection}
+              onOpenAsset={(id) => openAsset(id, 'carteira')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'estrutura' && <EstruturaView />}
           {product === 'contrata' && <ContrataView />}
           {product === 'impacto' && <ImpactoView />}
