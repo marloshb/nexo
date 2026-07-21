@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TopBar } from '@/components/shell/TopBar';
 import { Sidebar } from '@/components/shell/Sidebar';
 import { RightPanel } from '@/components/shell/RightPanel';
@@ -19,6 +19,7 @@ import { DataView } from '@/components/views/DataView';
 import { Ativo360View } from '@/components/views/Ativo360View';
 import { ASSETS, INITIAL_EVENTS, DEMO_SCRIPT, INITIAL_AUDIT, AGENTS, type AuditEntry, type EventItem } from '@/data/mockData';
 import type { ProductKey } from '@/data/navConfig';
+import type { ControlSection } from '@/data/controlData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -30,6 +31,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
+  const [controlSection, setControlSection] = useState<ControlSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -53,9 +55,9 @@ export default function App() {
     setActiveAssetId(null);
   }
 
-  function pushEvent(text: string, type: EventItem['type']) {
+  const pushEvent = useCallback((text: string, type: EventItem['type']) => {
     setEvents((prev) => [...prev, { t: nowStr(), text, type }]);
-  }
+  }, []);
   function pushAudit(action: string, detail: string) {
     auditIdRef.current += 1;
     setAuditTrail((prev) => [{ id: auditIdRef.current, t: nowStr(), user: 'Marlos Batista', action, detail }, ...prev]);
@@ -74,7 +76,7 @@ export default function App() {
       setDemoStepIdx((i) => i + 1);
     }, 1900);
     return () => clearTimeout(timer);
-  }, [demoRunning, demoStepIdx]);
+  }, [demoRunning, demoStepIdx, pushEvent]);
 
   function toggleDemo() {
     setDemoRunning((v) => !v);
@@ -108,11 +110,28 @@ export default function App() {
         onSelectAsset={(id) => openAsset(id, product)}
       />
       <div className="flex flex-1 min-h-0">
-        {product !== 'ativo360' && <Sidebar product={product} collapsed={sidebarCollapsed} onNavigate={setProduct} />}
+        {product !== 'ativo360' && (
+          <Sidebar
+            product={product}
+            collapsed={sidebarCollapsed}
+            onNavigate={setProduct}
+            activeItemId={product === 'control' ? controlSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : undefined}
+          />
+        )}
 
         <main className="flex-1 min-w-0 overflow-y-auto nexo-scroll">
           {product === 'hub' && <HubView onOpenProduct={setProduct} onOpenAsset={(id) => openAsset(id, 'hub')} />}
-          {product === 'control' && <ControlView onOpenAsset={(id) => openAsset(id, 'control')} events={events} />}
+          {product === 'control' && (
+            <ControlView
+              section={controlSection}
+              onSectionChange={setControlSection}
+              onOpenAsset={(id) => openAsset(id, 'control')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'ativos' && <AtivosView onOpenAsset={(id) => openAsset(id, 'ativos')} />}
           {product === 'entrega' && (
             <EntregaView onOpenAsset={(id) => openAsset(id, 'entrega')} vistoriaStage={vistoriaStage} onDecision={handleDecision} decision={decision} />

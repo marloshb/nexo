@@ -27,7 +27,7 @@ export const NAV_PRODUCTS: NavProduct[] = [
   { key: 'data',      name: 'Nexo Data',      tagline: 'Dados, integrações, qualidade e governança',         iconKey: 'Database',     color: '#9AACB8', builtV1: true },
 ];
 
-export interface SidebarItem { label: string; iconKey: string; }
+export interface SidebarItem { id?: string; label: string; iconKey: string; }
 const STD = {
   visao: { label: 'Visão geral', iconKey: 'LayoutGrid' },
   mapa: { label: 'Mapa', iconKey: 'Map' },
@@ -43,9 +43,16 @@ const STD = {
 export const SIDEBAR_CONFIG: Record<ProductKey, SidebarItem[]> = {
   hub: [],
   control: [
-    STD.visao, { label: 'Sala de situação', iconKey: 'Radio' }, STD.mapa,
-    { label: 'Agenda crítica', iconKey: 'AlertTriangle' }, { label: 'Simulador', iconKey: 'SlidersHorizontal' },
-    STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao,
+    { id: 'overview', label: 'Visão geral', iconKey: 'LayoutGrid' },
+    { id: 'situation', label: 'Sala de situação', iconKey: 'Radio' },
+    { id: 'map', label: 'Mapa', iconKey: 'Map' },
+    { id: 'agenda', label: 'Agenda crítica', iconKey: 'AlertTriangle' },
+    { id: 'simulator', label: 'Simulador', iconKey: 'SlidersHorizontal' },
+    { id: 'analytics', label: 'Analytics', iconKey: 'BarChart3' },
+    { id: 'agents', label: 'Agentes', iconKey: 'Bot' },
+    { id: 'reports', label: 'Relatórios', iconKey: 'FileText' },
+    { id: 'integrations', label: 'Integrações', iconKey: 'Plug' },
+    { id: 'admin', label: 'Administração', iconKey: 'Settings' },
   ],
   capital: [STD.visao, { label: 'Fontes de capital', iconKey: 'Landmark' }, { label: 'Programas e envelopes', iconKey: 'Package' }, { label: 'Covenants', iconKey: 'FileWarning' }, STD.mapa, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao],
   carteira: [STD.visao, { label: 'Radar territorial', iconKey: 'Radar' }, { label: 'Oportunidades', iconKey: 'Sparkles' }, { label: 'Priorização', iconKey: 'ListOrdered' }, STD.mapa, STD.analytics, STD.agentes, STD.relatorios, STD.integracoes, STD.administracao],

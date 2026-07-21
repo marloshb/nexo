@@ -107,3 +107,21 @@ A configuração `base: "./"` em `vite.config.ts` evita caminhos quebrados quand
 ### Observação sobre as funções de IA
 
 O GitHub Pages hospeda apenas arquivos estáticos. As chamadas atuais à API da Anthropic, feitas diretamente no navegador, não devem receber uma chave secreta no frontend. Para habilitar essas funções em produção, use uma API intermediária protegida, por exemplo uma função serverless, e mantenha a chave somente no servidor. Sem essa API, o restante do mockup funciona, mas os botões de geração por IA exibirão erro de conexão.
+
+
+## Nexo Control — implementação ampliada
+
+O módulo **Nexo Control** passou a ter navegação funcional em todas as opções do menu lateral:
+
+- Visão geral;
+- Sala de situação;
+- Mapa;
+- Agenda crítica;
+- Simulador;
+- Analytics;
+- Agentes;
+- Relatórios;
+- Integrações;
+- Administração.
+
+Foram incluídos dados sintéticos coerentes, vínculos com os demais produtos Nexo, workflows, decisões com SLA, simulações, relatórios, sincronizações demonstrativas e um ciclo de agentes ao vivo. As decisões críticas continuam exigindo gate humano.

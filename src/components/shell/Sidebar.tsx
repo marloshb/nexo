@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from '@/lib/icons';
 import { NAV_PRODUCTS, SIDEBAR_CONFIG, type ProductKey } from '@/data/navConfig';
 import { cls } from '@/lib/tokens';
 
 export function Sidebar({
-  product, collapsed, onNavigate,
+  product, collapsed, onNavigate, activeItemId, onItemSelect,
 }: {
-  product: ProductKey; collapsed: boolean; onNavigate: (p: ProductKey) => void;
+  product: ProductKey;
+  collapsed: boolean;
+  onNavigate: (p: ProductKey) => void;
+  activeItemId?: string;
+  onItemSelect?: (id: string) => void;
 }) {
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(0);
   const items = SIDEBAR_CONFIG[product] ?? [];
   const current = NAV_PRODUCTS.find((p) => p.key === product);
+
+  useEffect(() => {
+    setActiveItem(0);
+  }, [product]);
 
   return (
     <aside className={cls('shrink-0 border-r border-white/10 bg-[#0B2235]/70 flex flex-col transition-all duration-200 relative', collapsed ? 'w-[60px]' : 'w-[230px]')}>
@@ -60,21 +68,25 @@ export function Sidebar({
         {items.length === 0 && !collapsed && (
           <div className="text-[11px] text-neutral-500 px-2.5 py-2">Selecione um produto no Hub.</div>
         )}
-        {items.map((item, i) => (
-          <button
-            key={item.label}
-            onClick={() => setActiveItem(i)}
-            className={cls(
-              'w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors',
-              i === activeItem ? 'bg-[#1584D1]/15 text-[#5FB4E8]' : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-200',
-              collapsed && 'justify-center'
-            )}
-            title={collapsed ? item.label : undefined}
-          >
-            <Icon name={item.iconKey} size={16} className="shrink-0" />
-            {!collapsed && <span className="text-[12.5px] font-medium truncate">{item.label}</span>}
-          </button>
-        ))}
+        {items.map((item, i) => {
+          const itemId = item.id ?? item.label.toLowerCase().replace(/\s+/g, '-');
+          const isActive = activeItemId ? itemId === activeItemId : i === activeItem;
+          return (
+            <button
+              key={item.label}
+              onClick={() => { setActiveItem(i); onItemSelect?.(itemId); }}
+              className={cls(
+                'w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors',
+                isActive ? 'bg-[#1584D1]/15 text-[#5FB4E8]' : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-200',
+                collapsed && 'justify-center'
+              )}
+              title={collapsed ? item.label : undefined}
+            >
+              <Icon name={item.iconKey} size={16} className="shrink-0" />
+              {!collapsed && <span className="text-[12.5px] font-medium truncate">{item.label}</span>}
+            </button>
+          );
+        })}
       </nav>
 
       {!collapsed && (
