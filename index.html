@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('caixa-nexo-theme');
+        const theme = savedTheme === 'office-light' ? 'office-light' : 'executive-dark';
+        document.documentElement.dataset.nexoTheme = theme;
+        document.documentElement.style.colorScheme = theme === 'office-light' ? 'light' : 'dark';
+      } catch (_) {
+        document.documentElement.dataset.nexoTheme = 'executive-dark';
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CAIXA Nexo</title>

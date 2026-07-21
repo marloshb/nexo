@@ -33,11 +33,17 @@ import type { AgentsSection } from '@/data/agentsData';
 import type { DataSection } from '@/data/dataData';
 import { nowStr } from '@/lib/tokens';
 import { PRESENTATION_ASSET_ID, type PresentationStep } from '@/data/presentationData';
+import { NEXO_THEME_STORAGE_KEY, type NexoTheme } from '@/lib/theme';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
 
+
 export default function App() {
   const [product, setProductState] = useState<ProductKey>('hub');
+  const [theme, setTheme] = useState<NexoTheme>(() => {
+    const saved = localStorage.getItem(NEXO_THEME_STORAGE_KEY);
+    return saved === 'office-light' ? 'office-light' : 'executive-dark';
+  });
   const [prevProduct, setPrevProduct] = useState<ProductKey>('hub');
   const [activeAssetId, setActiveAssetId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -63,6 +69,16 @@ export default function App() {
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoStepIdx, setDemoStepIdx] = useState(0);
   const auditIdRef = useRef(1000);
+
+  useEffect(() => {
+    document.documentElement.dataset.nexoTheme = theme;
+    document.documentElement.style.colorScheme = theme === 'office-light' ? 'light' : 'dark';
+    localStorage.setItem(NEXO_THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((current) => current === 'executive-dark' ? 'office-light' : 'executive-dark');
+  }
 
   function setProduct(p: ProductKey) {
     setProductState(p);
@@ -158,13 +174,15 @@ export default function App() {
   const demoDone = demoStepIdx >= DEMO_SCRIPT.length;
 
   return (
-    <div className="w-full min-h-screen flex flex-col" style={{ background: '#071521' }}>
+    <div className="nexo-app-shell w-full min-h-screen flex flex-col">
       <TopBar
         product={product}
         onNavigateHub={() => setProduct('hub')}
         onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
         onOpenAsk={() => setAskOpen(true)}
         onOpenPresentation={() => setPresentationOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onSelectAsset={(id) => openAsset(id, product)}
       />
       <div className="flex flex-1 min-h-0">

@@ -361,3 +361,12 @@ O painel lateral preserva a estrutura visual original e agora oferece ações op
 ## Correção ArcGIS MapView — appendChild
 
 O `MapView` não inclui mais `attribution` entre os componentes do `DefaultUI` no ArcGIS Maps SDK 5.x. A configuração anterior tentava adicioná-lo manualmente em `ui.components`, provocando `Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'`. O mapa agora usa apenas `zoom`, mantém a atribuição nativa da View, captura um `HTMLDivElement` estável antes da inicialização e destrói corretamente a View em remontagens do React.
+
+## Alternador de experiência visual
+
+A barra superior oferece duas paletas persistentes, sem alterar os fluxos ou dados da aplicação:
+
+- **Executivo escuro**: tema original de sala de situação e missão crítica.
+- **Office claro**: superfícies claras, contraste corporativo e ícones coloridos inspirados no ecossistema Microsoft 365.
+
+A preferência é armazenada localmente em `localStorage` na chave `caixa-nexo-theme` e aplicada por `data-nexo-theme` no elemento HTML. Não há dependência de backend.

@@ -2,6 +2,7 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 import { Icon } from '@/lib/icons';
 import { ASSETS, CURRENT_USER, type Asset } from '@/data/mockData';
 import { NAV_PRODUCTS, type ProductKey } from '@/data/navConfig';
+import type { NexoTheme } from '@/lib/theme';
 import { StatusChip } from '@/components/shared/Primitives';
 import { cls } from '@/lib/tokens';
 
@@ -9,7 +10,7 @@ const PRODUCT_NAMES: Record<string, string> = { hub: 'Nexo Hub', ativo360: 'Ativ
 NAV_PRODUCTS.forEach((p) => (PRODUCT_NAMES[p.key] = p.name));
 
 export function TopBar({
-  product, onNavigateHub, onToggleSidebar, onOpenAsk, onOpenPresentation, onSelectAsset, alertCount = 4, taskCount = 7,
+  product, onNavigateHub, onToggleSidebar, onOpenAsk, onOpenPresentation, onSelectAsset, theme, onToggleTheme, alertCount = 4, taskCount = 7,
 }: {
   product: ProductKey;
   onNavigateHub: () => void;
@@ -17,6 +18,8 @@ export function TopBar({
   onOpenAsk: () => void;
   onOpenPresentation: () => void;
   onSelectAsset: (id: string) => void;
+  theme: NexoTheme;
+  onToggleTheme: () => void;
   alertCount?: number;
   taskCount?: number;
 }) {
@@ -40,7 +43,7 @@ export function TopBar({
   }, []);
 
   return (
-    <header className="h-14 shrink-0 border-b border-white/10 bg-[#071521] flex items-center gap-3 px-3.5 z-30 relative">
+    <header className="nexo-topbar h-14 shrink-0 border-b border-white/10 bg-[#071521] flex items-center gap-3 px-3.5 z-30 relative">
       <button onClick={onToggleSidebar} className="p-1.5 rounded-md hover:bg-white/8 text-neutral-400 shrink-0" title="Recolher/expandir menu">
         <Icon name="Menu" size={17} />
       </button>
@@ -96,6 +99,17 @@ export function TopBar({
 
         <button onClick={onOpenPresentation} className="hidden md:flex items-center gap-1.5 rounded-lg border border-[#7C5CBF]/45 bg-[#7C5CBF]/10 px-3 h-9 text-[12px] font-medium text-[#C8B9EB] hover:bg-[#7C5CBF]/18 transition-colors">
           <Icon name="Presentation" size={13} /> Apresentar ciclo
+        </button>
+        <button
+          onClick={onToggleTheme}
+          className="nexo-theme-toggle flex items-center gap-1.5 rounded-lg border px-3 h-9 text-[12px] font-medium transition-colors"
+          title={theme === 'executive-dark' ? 'Ativar visual Office claro' : 'Ativar visual executivo escuro'}
+          aria-label="Alternar paleta de cores"
+        >
+          <span className="theme-swatch-grid" aria-hidden="true">
+            <span /><span /><span /><span />
+          </span>
+          <span className="hidden xl:inline">{theme === 'executive-dark' ? 'Office claro' : 'Executivo escuro'}</span>
         </button>
         <button onClick={onOpenAsk} className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#18B7D6]/40 bg-[#18B7D6]/10 px-3 h-9 text-[12.5px] font-medium text-[#6FD8EC] hover:bg-[#18B7D6]/18 transition-colors">
           <Icon name="Sparkles" size={13} /> Perguntar ao Nexo

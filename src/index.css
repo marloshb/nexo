@@ -73,3 +73,94 @@
 @media (prefers-reduced-motion: reduce) {
   .nexo-pulse-ring, .nexo-fade-in { animation: none !important; }
 }
+
+/* CAIXA Nexo dual visual system */
+.nexo-app-shell { background: hsl(var(--background)); }
+.nexo-theme-toggle {
+  border-color: rgba(24,183,214,.35);
+  background: rgba(24,183,214,.08);
+  color: #91e1ef;
+}
+.nexo-theme-toggle:hover { background: rgba(24,183,214,.16); }
+.theme-swatch-grid { display:grid; grid-template-columns:repeat(2,5px); gap:2px; }
+.theme-swatch-grid span { width:5px; height:5px; border-radius:1px; }
+.theme-swatch-grid span:nth-child(1){background:#0078d4}.theme-swatch-grid span:nth-child(2){background:#107c10}.theme-swatch-grid span:nth-child(3){background:#d83b01}.theme-swatch-grid span:nth-child(4){background:#8764b8}
+
+html[data-nexo-theme='office-light'] {
+  --background: 210 25% 97%;
+  --foreground: 215 28% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 28% 17%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 28% 17%;
+  --primary: 207 100% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 25% 94%;
+  --secondary-foreground: 215 28% 17%;
+  --muted: 210 22% 94%;
+  --muted-foreground: 215 14% 42%;
+  --accent: 194 100% 37%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 355 70% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 20% 86%;
+  --input: 214 20% 86%;
+  --ring: 207 100% 42%;
+}
+html[data-nexo-theme='office-light'] body { background:#f5f7fa; color:#1b2430; }
+html[data-nexo-theme='office-light'] .nexo-app-shell { background:linear-gradient(180deg,#f6f8fb 0%,#eef2f7 100%) !important; }
+html[data-nexo-theme='office-light'] .nexo-topbar { background:rgba(255,255,255,.96) !important; border-color:#dfe4ea !important; box-shadow:0 1px 4px rgba(17,38,63,.08); }
+html[data-nexo-theme='office-light'] .nexo-theme-toggle { border-color:#c8d7e8; background:#f3f7fb; color:#235a91; }
+html[data-nexo-theme='office-light'] .nexo-theme-toggle:hover { background:#e7f1fb; }
+
+/* Translate the existing dark token utility language into an Office-like light surface. */
+html[data-nexo-theme='office-light'] [class*='bg-[#071521]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#081A2A]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#091C2C]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#0A1F31]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#0B2235]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#0C253A]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#0D2940]'],
+html[data-nexo-theme='office-light'] [class*='bg-[#102A3F]'] { background-color:#fff !important; }
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.02]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.03]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.04]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.05]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.06]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.07]'],
+html[data-nexo-theme='office-light'] [class*='bg-white/[0.08]'] { background-color:#f5f7fa !important; }
+html[data-nexo-theme='office-light'] [class*='border-white/'],
+html[data-nexo-theme='office-light'] [class*='border-white['] { border-color:#dfe4ea !important; }
+html[data-nexo-theme='office-light'] .text-neutral-100,
+html[data-nexo-theme='office-light'] .text-neutral-200 { color:#172033 !important; }
+html[data-nexo-theme='office-light'] .text-neutral-300 { color:#344054 !important; }
+html[data-nexo-theme='office-light'] .text-neutral-400 { color:#526174 !important; }
+html[data-nexo-theme='office-light'] .text-neutral-500 { color:#69788b !important; }
+html[data-nexo-theme='office-light'] input,
+html[data-nexo-theme='office-light'] textarea,
+html[data-nexo-theme='office-light'] select { color:#172033; }
+html[data-nexo-theme='office-light'] input::placeholder,
+html[data-nexo-theme='office-light'] textarea::placeholder { color:#8793a3; }
+html[data-nexo-theme='office-light'] .shadow-2xl,
+html[data-nexo-theme='office-light'] .shadow-xl,
+html[data-nexo-theme='office-light'] .shadow-lg { box-shadow:0 8px 24px rgba(31,45,61,.12) !important; }
+html[data-nexo-theme='office-light'] .nexo-scroll::-webkit-scrollbar-thumb { background:rgba(75,85,99,.22); }
+
+/* Colored product/navigation icons in the light experience. */
+html[data-nexo-theme='office-light'] aside button svg,
+html[data-nexo-theme='office-light'] nav button svg,
+html[data-nexo-theme='office-light'] .nexo-topbar button svg { color:#0078d4; }
+html[data-nexo-theme='office-light'] aside button:nth-of-type(4n+2) svg,
+html[data-nexo-theme='office-light'] nav button:nth-of-type(4n+2) svg { color:#107c10; }
+html[data-nexo-theme='office-light'] aside button:nth-of-type(4n+3) svg,
+html[data-nexo-theme='office-light'] nav button:nth-of-type(4n+3) svg { color:#d83b01; }
+html[data-nexo-theme='office-light'] aside button:nth-of-type(4n+4) svg,
+html[data-nexo-theme='office-light'] nav button:nth-of-type(4n+4) svg { color:#8764b8; }
+html[data-nexo-theme='office-light'] button:hover { filter:saturate(1.08); }
+html[data-nexo-theme='office-light'] [class*='hover:bg-white']:hover { background-color:#edf4fb !important; }
+
+/* Keep semantic chips vivid and Office-like. */
+html[data-nexo-theme='office-light'] [class*='text-[#6FD8EC]'] { color:#0078a8 !important; }
+html[data-nexo-theme='office-light'] [class*='text-[#C8B9EB]'] { color:#6849a8 !important; }
+html[data-nexo-theme='office-light'] [class*='text-[#0FA39D]'] { color:#0b7a75 !important; }
+html[data-nexo-theme='office-light'] [class*='text-[#E5A11A]'] { color:#9a6500 !important; }
