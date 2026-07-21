@@ -27,6 +27,7 @@ import type { ContrataSection } from '@/data/contrataData';
 import type { EntregaSection } from '@/data/entregaData';
 import type { EvidenciaSection } from '@/data/evidenciaData';
 import type { AtivosSection } from '@/data/ativosData';
+import type { ImpactoSection } from '@/data/impactoData';
 import { nowStr } from '@/lib/tokens';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
@@ -46,6 +47,7 @@ export default function App() {
   const [entregaSection, setEntregaSection] = useState<EntregaSection>('overview');
   const [evidenciaSection, setEvidenciaSection] = useState<EvidenciaSection>('overview');
   const [ativosSection, setAtivosSection] = useState<AtivosSection>('overview');
+  const [impactoSection, setImpactoSection] = useState<ImpactoSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -129,8 +131,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : product === 'entrega' ? entregaSection : product === 'evidencia' ? evidenciaSection : product === 'ativos' ? ativosSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : product === 'entrega' ? (id) => setEntregaSection(id as EntregaSection) : product === 'evidencia' ? (id) => setEvidenciaSection(id as EvidenciaSection) : product === 'ativos' ? (id) => setAtivosSection(id as AtivosSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : product === 'entrega' ? entregaSection : product === 'evidencia' ? evidenciaSection : product === 'ativos' ? ativosSection : product === 'impacto' ? impactoSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : product === 'entrega' ? (id) => setEntregaSection(id as EntregaSection) : product === 'evidencia' ? (id) => setEvidenciaSection(id as EvidenciaSection) : product === 'ativos' ? (id) => setAtivosSection(id as AtivosSection) : product === 'impacto' ? (id) => setImpactoSection(id as ImpactoSection) : undefined}
           />
         )}
 
@@ -223,7 +225,16 @@ export default function App() {
               onPushEvent={pushEvent}
             />
           )}
-          {product === 'impacto' && <ImpactoView />}
+          {product === 'impacto' && (
+            <ImpactoView
+              section={impactoSection}
+              onSectionChange={setImpactoSection}
+              onOpenAsset={(id) => openAsset(id, 'impacto')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'data' && <DataView />}
           {product === 'ativo360' && asset && (
             <Ativo360View

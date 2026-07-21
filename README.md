@@ -19,7 +19,8 @@ pnpm build     # build de produção (dist/)
 - **Ativo 360** — passaporte completo do ativo, com as 14 abas da especificação
 - **Nexo Agents** — os 12 agentes de IA da seção 20, com timeline de execução detalhada
 - **Nexo Ativos** — portfólio nacional (tabela + mapa)
-- **Capital / Carteira / Estrutura / Contrata / Impacto / Data** — stubs estruturais navegáveis (profundidade completa é Versão 2)
+- **Nexo Capital, Carteira, Estrutura, Contrata e Impacto** — módulos funcionais com fluxos, agentes, relatórios e integrações
+- **Nexo Data** — catálogo, integrações, qualidade e governança
 - **"Perguntar ao Nexo"** — chamada real à API da Anthropic (Claude), fundamentada no contexto sintético da carteira
 - Todos os dados são sintéticos — ver `src/data/mockData.ts`, `src/data/navConfig.ts` e `src/data/brazilMap.ts`
 
@@ -231,3 +232,17 @@ Principais arquivos:
 ## Nexo Ativos — implementação funcional
 
 O módulo Nexo Ativos foi ampliado com navegação funcional por seção, portfólio, mapa operacional, comissionamento, saúde multidimensional, telemetria sintética, manutenção preditiva, analytics, agentes ao vivo, relatórios e integrações. As decisões críticas permanecem sujeitas a gate humano e todos os dados operacionais são sintéticos para demonstração.
+
+## Nexo Impacto — implementação funcional ampliada
+
+O módulo **Nexo Impacto** foi implementado integralmente e conectado ao ciclo Capital–Ativo–Resultado:
+
+- Visão geral com capital rastreado, beneficiários comprovados, índice de valor, confiança, emissões evitadas e linha de resultados;
+- Indicadores com catálogo, busca, filtros, fórmulas, baseline, metas, frameworks, evidências, materialidade e validação assistida;
+- Beneficiários com segmentação, deduplicação, cobertura territorial, comparação previsto × comprovado e reconciliação cadastral;
+- Mapa corporativo de impacto com ativos, áreas de influência, vulnerabilidade, riscos, camadas Living Atlas e acesso ao Ativo 360;
+- Relatórios de valor, alocação, Green Bond, financiadores e painel público, com geração progressiva e gate humano;
+- Administração de frameworks, taxonomias, regras de confiança, atribuição, dupla contagem, integrações e trilha de auditoria;
+- Agentes de indicadores, beneficiários, atribuição, evidências e relatórios, com execução dinâmica e eventos ao vivo.
+
+O ciclo ao vivo simula validação metodológica, conciliação de beneficiários, ligação de evidências, cálculo de atribuição e preparação da publicação. Indicadores divergentes permanecem restritos até decisão humana. Todos os dados são sintéticos.
