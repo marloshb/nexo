@@ -12,7 +12,7 @@ import {
   Play, Pause, RotateCcw, Plus, ArrowUpRight, ArrowRight, ExternalLink, Eye,
   Zap, PackageCheck, Send, Loader2, MessageSquareText, RefreshCw, MapPinned,
   ThumbsUp, PauseCircle, Waves, ChevronsUpDown, PanelRightClose, PanelRightOpen,
-  Info, Route, FastForward, Building, HelpCircle, ScanLine, FileSearch, type LucideIcon,
+  Info, Route, FastForward, Building, HelpCircle, ScanLine, FileSearch, Presentation, CircleHelp, Mic2, Check, type LucideIcon,
 } from 'lucide-react';
 
 export const ICONS: Record<string, LucideIcon> = {
@@ -28,7 +28,7 @@ export const ICONS: Record<string, LucideIcon> = {
   Play, Pause, RotateCcw, Plus, ArrowUpRight, ArrowRight, ExternalLink, Eye,
   Zap, PackageCheck, Send, Loader2, MessageSquareText, RefreshCw, MapPinned,
   ThumbsUp, PauseCircle, Waves, ChevronsUpDown, PanelRightClose, PanelRightOpen,
-  Info, Route, FastForward, Building, HelpCircle, ScanLine, FileSearch,
+  Info, Route, FastForward, Building, HelpCircle, ScanLine, FileSearch, Presentation, CircleHelp, Mic2, Check,
 };
 
 export function Icon({

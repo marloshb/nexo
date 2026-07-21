@@ -1,3 +1,4 @@
+import { REALISTIC_ASSETS } from '@/data/realisticPortfolioData';
 import type { StatusKey } from '@/lib/tokens';
 
 // =====================================================================================
@@ -211,6 +212,7 @@ export const ASSETS: Asset[] = [
     summary: 'Obra concluída e testes finalizados. Certificado de Prontidão Operacional emitido; primeira turma matriculada.',
   },
 ];
+ASSETS.push(...REALISTIC_ASSETS);
 
 export const HERO_ASSET_ID = ASSETS[0].id;
 

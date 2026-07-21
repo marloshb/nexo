@@ -1,3 +1,4 @@
+import { REALISTIC_STRUCTURE_CASES, REALISTIC_ALTERNATIVES } from '@/data/realisticPortfolioData';
 // Dados sintéticos — Nexo Estrutura. Registros fictícios para demonstração funcional.
 
 export type EstruturaSection = 'overview' | 'alternatives' | 'financial' | 'scenarios' | 'map' | 'analytics' | 'agents' | 'reports' | 'admin';
@@ -137,6 +138,7 @@ export const STRUCTURE_CASES: StructureCase[] = [
     programa: 'Educação Profissionalizante', funding: 'Recursos Próprios CAIXA', updated: 'Ontem, 17:20',
   },
 ];
+STRUCTURE_CASES.push(...REALISTIC_STRUCTURE_CASES);
 
 export const ALTERNATIVES: Alternative[] = [
   {
@@ -180,6 +182,7 @@ export const ALTERNATIVES: Alternative[] = [
     score: 78.3, recommended: false, status: 'Validada',
   },
 ];
+ALTERNATIVES.push(...REALISTIC_ALTERNATIVES);
 
 export const FINANCIAL_ASSUMPTIONS: FinancialAssumption[] = [
   { id: 'discount', label: 'Taxa de desconto', value: 8.5, min: 4, max: 14, step: 0.1, suffix: '% a.a.' },

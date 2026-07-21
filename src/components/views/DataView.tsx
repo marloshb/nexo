@@ -1,167 +1,57 @@
-import { useState } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { useEffect, useMemo, useState } from 'react';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Icon } from '@/lib/icons';
-import { INTEGRATIONS, CATALOG_ENTITIES, type Integration } from '@/data/integrationsData';
 import { cls } from '@/lib/tokens';
-import { Panel, KpiCard, ProgressBar } from '@/components/shared/Primitives';
-import { SingleBarChart } from '@/components/shared/Charts';
+import { Panel, KpiCard, ProgressBar, Pill } from '@/components/shared/Primitives';
+import { DonutChart, SingleBarChart } from '@/components/shared/Charts';
+import { INTEGRATIONS, type Integration } from '@/data/integrationsData';
+import {
+  DATA_DOMAINS, DATA_PRODUCTS, INITIAL_DATA_AGENTS, LINEAGE_NODES, QUALITY_ISSUES, QUALITY_TREND,
+  type DataAgent, type DataProduct, type DataSection,
+} from '@/data/dataData';
+import type { ProductKey } from '@/data/navConfig';
+import type { EventItem } from '@/data/mockData';
 
-const TABS = ['Catálogo', 'Integrações', 'Qualidade', 'Monitoramento'] as const;
 const STATUS_META: Record<Integration['status'], { label: string; color: string }> = {
   ativa: { label: 'Ativa', color: '#0FA39D' }, falha: { label: 'Falha', color: '#D14A55' }, degradada: { label: 'Degradada', color: '#E5A11A' },
 };
-const CATEGORY_ICON: Record<Integration['categoria'], string> = {
-  'Governo Federal': 'Building', 'Referenciais Técnicos': 'Calculator', 'Dados Territoriais': 'Map',
-  'Clima e Ambiente': 'Wind', 'Sistemas Internos': 'Database', Sensores: 'Radio',
+const AGENT_META: Record<DataAgent['status'], { label: string; color: string }> = {
+  idle: { label: 'Concluído', color: '#0FA39D' }, running: { label: 'Em execução', color: '#18B7D6' }, waiting: { label: 'Gate humano', color: '#7C5CBF' }, alert: { label: 'Alerta', color: '#E5A11A' },
 };
+const SEV_META = { critical: { label: 'Crítica', color: '#D14A55' }, high: { label: 'Alta', color: '#E56B4A' }, medium: { label: 'Média', color: '#E5A11A' }, low: { label: 'Baixa', color: '#1584D1' } } as const;
 
-function ConnectorDetail({ integration, onClose }: { integration: Integration | null; onClose: () => void }) {
-  return (
-    <Sheet open={!!integration} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="right" className="bg-[#0B2235] border-white/10 text-neutral-100 w-full sm:max-w-lg overflow-y-auto nexo-scroll">
-        {integration && (
-          <>
-            <SheetHeader>
-              <SheetTitle className="font-display text-neutral-50 pr-6">{integration.origem}</SheetTitle>
-              <SheetDescription className="text-neutral-400">{integration.categoria} · {integration.metodo}</SheetDescription>
-            </SheetHeader>
-            <div className="mt-4 space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[12px] font-medium" style={{ color: STATUS_META[integration.status].color }}>
-                  <span className="w-2 h-2 rounded-full" style={{ background: STATUS_META[integration.status].color }} />{STATUS_META[integration.status].label}
-                </span>
-              </div>
-              {integration.erro && (
-                <div className="rounded-lg border border-[#D14A55]/30 bg-[#D14A55]/8 p-2.5 text-[11.5px] text-[#D14A55]">{integration.erro}</div>
-              )}
-              <div className="grid grid-cols-2 gap-3 text-[12.5px]">
-                <div><span className="text-neutral-500 text-[11px]">Origem</span><div className="text-neutral-200">{integration.origem}</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Destino</span><div className="text-neutral-200">Nexo Data — catálogo corporativo</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Objetos</span><div className="text-neutral-200">{integration.objetos}</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Frequência</span><div className="text-neutral-200">{integration.frequencia}</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Autenticação</span><div className="text-neutral-200">{integration.autenticacao}</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Latência</span><div className="text-neutral-200 tnum">{integration.latenciaMs} ms</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Última execução</span><div className="text-neutral-200">{integration.ultimaExecucao}</div></div>
-                <div><span className="text-neutral-500 text-[11px]">Próxima execução</span><div className="text-neutral-200">{integration.proximaExecucao}</div></div>
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-neutral-500 font-medium mb-1.5">Campos (amostra)</div>
-                <div className="flex flex-wrap gap-1.5">{integration.campos.map((c) => <span key={c} className="font-mono-id text-[10.5px] rounded bg-white/[0.05] border border-white/10 px-1.5 py-0.5 text-neutral-300">{c}</span>)}</div>
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-neutral-500 font-medium mb-1.5">Transformação</div>
-                <div className="text-[12.5px] text-neutral-300">{integration.transformacao}</div>
-              </div>
-              <div className="text-[11px] text-neutral-500">Volume (24h): {integration.volume24h}</div>
-            </div>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
-  );
+function Header({ title, subtitle, onLive, live }: { title:string; subtitle:string; onLive:()=>void; live:boolean }) {
+  return <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><div><h1 className="font-display text-[19px] font-semibold text-neutral-50">{title}</h1><p className="text-[12px] text-neutral-500 mt-0.5">{subtitle}</p></div><button onClick={onLive} className={cls('rounded-lg border px-3 py-2 text-[11px] font-medium', live ? 'border-[#E5A11A]/40 bg-[#E5A11A]/10 text-[#F2C15A]' : 'border-[#18B7D6]/35 bg-[#18B7D6]/10 text-[#6FD8EC]')}><Icon name={live ? 'Pause' : 'Play'} size={12} className="inline mr-1.5" />{live ? 'Pausar ciclo ao vivo' : 'Executar ciclo ao vivo'}</button></div>;
 }
 
-export function DataView() {
-  const [tab, setTab] = useState<typeof TABS[number]>('Integrações');
-  const [selected, setSelected] = useState<Integration | null>(null);
+function ConnectorDetail({ integration, onClose, onSync }: { integration: Integration | null; onClose:()=>void; onSync:(i:Integration)=>void }) {
+  return <Sheet open={!!integration} onOpenChange={(v)=>!v&&onClose()}><SheetContent side="right" className="bg-[#0B2235] border-white/10 text-neutral-100 w-full sm:max-w-xl overflow-y-auto nexo-scroll">{integration&&<><SheetHeader><SheetTitle className="font-display text-neutral-50 pr-6">{integration.origem}</SheetTitle><SheetDescription className="text-neutral-400">{integration.categoria} · {integration.metodo}</SheetDescription></SheetHeader><div className="mt-5 space-y-4"><div className="flex items-center justify-between"><span className="inline-flex items-center gap-1.5 text-[12px] font-medium" style={{color:STATUS_META[integration.status].color}}><span className="w-2 h-2 rounded-full" style={{background:STATUS_META[integration.status].color}} />{STATUS_META[integration.status].label}</span><button onClick={()=>onSync(integration)} className="rounded-lg border border-[#18B7D6]/30 bg-[#18B7D6]/10 px-3 py-2 text-[10.5px] text-[#6FD8EC]"><Icon name="RefreshCw" size={11} className="inline mr-1.5" />Sincronizar agora</button></div>{integration.erro&&<div className="rounded-lg border border-[#D14A55]/30 bg-[#D14A55]/8 p-3 text-[11.5px] text-[#E9858D]">{integration.erro}</div>}<div className="grid grid-cols-2 gap-3 text-[12px]">{[['Objetos',integration.objetos],['Frequência',integration.frequencia],['Autenticação',integration.autenticacao],['Latência',`${integration.latenciaMs} ms`],['Última execução',integration.ultimaExecucao],['Próxima execução',integration.proximaExecucao],['Volume 24h',integration.volume24h],['Destino','Nexo Data / Lakehouse']].map(([a,b])=><div key={a}><div className="text-[10.5px] text-neutral-500">{a}</div><div className="text-neutral-200 mt-0.5">{b}</div></div>)}</div><div><div className="text-[10.5px] uppercase tracking-wide text-neutral-500 mb-2">Campos</div><div className="flex flex-wrap gap-1.5">{integration.campos.map(c=><span key={c} className="font-mono text-[10px] rounded bg-white/[0.05] border border-white/10 px-2 py-1 text-neutral-300">{c}</span>)}</div></div><div><div className="text-[10.5px] uppercase tracking-wide text-neutral-500 mb-1">Transformação</div><div className="text-[12px] text-neutral-300">{integration.transformacao}</div></div><div className="rounded-lg border border-white/10 bg-white/[0.03] p-3"><div className="text-[10px] text-neutral-500 uppercase tracking-wide">Dependências</div><div className="mt-2 flex flex-wrap gap-1.5"><Pill>Nexo Data</Pill><Pill>Nexo Agents</Pill><Pill>Produtos analíticos</Pill></div></div></div></>}</SheetContent></Sheet>;
+}
 
-  const ativas = INTEGRATIONS.filter((i) => i.status === 'ativa').length;
-  const falhas = INTEGRATIONS.filter((i) => i.status === 'falha').length;
-  const grouped = Array.from(new Set(INTEGRATIONS.map((i) => i.categoria))).map((cat) => ({ cat, items: INTEGRATIONS.filter((i) => i.categoria === cat) }));
+function ProductDetail({ product, onClose, onNavigate }: { product:DataProduct|null; onClose:()=>void; onNavigate:(p:ProductKey)=>void }) {
+  return <Sheet open={!!product} onOpenChange={(v)=>!v&&onClose()}><SheetContent side="right" className="bg-[#0B2235] border-white/10 text-neutral-100 w-full sm:max-w-xl overflow-y-auto nexo-scroll">{product&&<><SheetHeader><SheetTitle className="font-display text-neutral-50 pr-6">{product.name}</SheetTitle><SheetDescription className="text-neutral-400">{product.id} · {product.domain}</SheetDescription></SheetHeader><div className="mt-5 space-y-4"><div className="text-[12.5px] text-neutral-300 leading-relaxed">{product.description}</div><div className="grid grid-cols-2 gap-3">{[['Qualidade',`${product.quality}%`],['Frescor',product.freshness],['SLA',product.sla],['Registros',product.records],['Owner',product.owner],['Status',product.status==='certified'?'Certificado':product.status==='attention'?'Atenção':'Rascunho']].map(([a,b])=><div key={a} className="rounded-lg border border-white/10 bg-white/[0.03] p-3"><div className="text-[10px] text-neutral-500">{a}</div><div className="text-[12px] text-neutral-100 mt-1">{b}</div></div>)}</div><div><div className="text-[10px] uppercase tracking-wide text-neutral-500 mb-2">Fontes</div><div className="flex flex-wrap gap-1.5">{product.sources.map(s=><Pill key={s}>{s}</Pill>)}</div></div><div><div className="text-[10px] uppercase tracking-wide text-neutral-500 mb-2">Consumidores</div><div className="flex flex-wrap gap-2">{product.consumers.map(c=><button key={c} onClick={()=>{ const p = c.toLowerCase().includes('control')?'control':c.toLowerCase().includes('capital')?'capital':c.toLowerCase().includes('entrega')?'entrega':c.toLowerCase().includes('impacto')?'impacto':c.toLowerCase().includes('agents')?'agents':'hub'; onNavigate(p as ProductKey); }} className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[10.5px] text-neutral-300">{c}</button>)}</div></div><div className="rounded-lg border border-[#0FA39D]/25 bg-[#0FA39D]/8 p-3 text-[11px] text-neutral-300"><Icon name="ShieldCheck" size={12} className="inline mr-1.5 text-[#5ED4C8]" />Contrato de dados ativo: schema, SLA, owner, regras de qualidade e linhagem publicados.</div></div></>}</SheetContent></Sheet>;
+}
 
-  return (
-    <div className="p-5 space-y-4 max-w-[1500px] mx-auto nexo-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="font-display text-[19px] font-semibold text-neutral-50">Nexo Data</h1>
-          <p className="text-[12px] text-neutral-500 mt-0.5">Dados, integrações, qualidade e governança</p>
-        </div>
-        <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-0.5 overflow-x-auto nexo-scroll">
-          {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={cls('px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors whitespace-nowrap', tab === t ? 'bg-[#1584D1] text-white' : 'text-neutral-400')}>{t}</button>
-          ))}
-        </div>
-      </div>
+export function DataView({ section, onSectionChange, onNavigateProduct, events, onPushEvent }: { section:DataSection; onSectionChange:(s:DataSection)=>void; onNavigateProduct:(p:ProductKey)=>void; events:EventItem[]; onPushEvent:(text:string,type:EventItem['type'])=>void }) {
+  const [agents,setAgents]=useState(INITIAL_DATA_AGENTS); const [live,setLive]=useState(false); const [step,setStep]=useState(0); const [selectedIntegration,setSelectedIntegration]=useState<Integration|null>(null); const [selectedProduct,setSelectedProduct]=useState<DataProduct|null>(null); const [search,setSearch]=useState(''); const [domain,setDomain]=useState('todos'); const [syncing,setSyncing]=useState<string|null>(null);
+  const liveSteps=['Agente de Observabilidade verificando conectores e SLAs','Profiling iniciado sobre Projeto, Contrato e Ativo','34 anomalias geoespaciais confirmadas','Resolução de entidades encontrou 7 pares ambíguos','Linhagem recalculada para 6 produtos de dados','Gate humano preparado para consolidação dos registros','Produtos certificados atualizados e consumidores notificados'];
+  useEffect(()=>{ if(!live)return; const t=setTimeout(()=>{ const msg=liveSteps[step%liveSteps.length]; onPushEvent(`Nexo Data: ${msg}`,step===2?'warning':step===5?'info':'success'); setAgents(prev=>prev.map((a,i)=>({...a,status:i===step%prev.length?'running':a.status==='alert'?'alert':i===1&&step>=3?'waiting':'idle',progress:i===step%prev.length?Math.min(96,a.progress+13):a.progress,step:i===step%prev.length?msg:a.step}))); setStep(s=>s+1); },1450); return()=>clearTimeout(t); },[live,step,onPushEvent]);
+  const filteredProducts=useMemo(()=>DATA_PRODUCTS.filter(p=>(domain==='todos'||p.domain===domain)&&(`${p.name} ${p.description} ${p.tags.join(' ')}`.toLowerCase().includes(search.toLowerCase()))),[search,domain]);
+  const ativas=INTEGRATIONS.filter(i=>i.status==='ativa').length; const avgQuality=Math.round(DATA_PRODUCTS.reduce((s,p)=>s+p.quality,0)/DATA_PRODUCTS.length); const openIssues=QUALITY_ISSUES.filter(i=>i.status!=='resolved').length;
+  function sync(i:Integration){ setSyncing(i.id); onPushEvent(`Sincronização manual iniciada: ${i.origem}`,'info'); setTimeout(()=>{setSyncing(null);onPushEvent(`${i.origem}: carga concluída e contrato de dados validado`,'success');},1600); }
+  const toggleLive=()=>{setLive(v=>!v); if(!live)onPushEvent('Nexo Data: ciclo de observabilidade e qualidade iniciado','info');};
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Integrações ativas" value={String(ativas)} icon="Plug" />
-        <KpiCard label="Integrações com falha" value={String(falhas)} icon="AlertOctagon" deltaTone="red" />
-        <KpiCard label="Qualidade média" value={`${Math.round(CATALOG_ENTITIES.reduce((s, e) => s + e.qualidade, 0) / CATALOG_ENTITIES.length)}%`} icon="BadgeCheck" />
-        <KpiCard label="Volume (24h)" value="1,2 mi" icon="Database" hint="registros processados" />
-      </div>
+  const Overview=()=> <div className="space-y-4"><Header title="Nexo Data" subtitle="Dados, integrações, qualidade, identidade e governança corporativa" onLive={toggleLive} live={live}/><div className="grid grid-cols-2 lg:grid-cols-5 gap-3"><KpiCard label="Produtos certificados" value="5" icon="Database" delta="+2 no trimestre"/><KpiCard label="Qualidade média" value={`${avgQuality}%`} icon="BadgeCheck" delta="+2,4 p.p."/><KpiCard label="Integrações ativas" value={`${ativas}/${INTEGRATIONS.length}`} icon="Plug"/><KpiCard label="Eventos processados" value="3,4 mi" icon="Activity" hint="últimas 24h"/><KpiCard label="Incidentes abertos" value={String(openIssues)} icon="AlertOctagon" deltaTone="amber"/></div><div className="grid grid-cols-1 xl:grid-cols-3 gap-4"><Panel title="Saúde dos domínios" subtitle="Qualidade e frescor dos dados"><div className="space-y-3">{DATA_DOMAINS.map(d=><button key={d.id} onClick={()=>{setDomain(d.name);onSectionChange('catalog')}} className="w-full text-left"><div className="flex justify-between text-[11px] mb-1"><span className="text-neutral-200">{d.name}</span><span className="text-neutral-500">{d.quality}%</span></div><ProgressBar value={d.quality/100} tone={d.quality>=96?'teal':d.quality>=92?'blue':'amber'}/><div className="text-[9.5px] text-neutral-600 mt-1">{d.products} produtos · owner {d.owner}</div></button>)}</div></Panel><Panel title="Qualidade corporativa" subtitle="Evolução dos últimos seis meses"><SingleBarChart data={QUALITY_TREND} xKey="mes" yKey="qualidade" color="#0FA39D"/></Panel><Panel title="Agentes de dados" subtitle="Operação e gates em tempo real"><div className="space-y-3">{agents.map(a=><div key={a.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-3"><div className="flex justify-between gap-2"><div className="text-[11.5px] text-neutral-200">{a.name}</div><span className="text-[9.5px]" style={{color:AGENT_META[a.status].color}}>{AGENT_META[a.status].label}</span></div><div className="text-[10px] text-neutral-500 mt-1 line-clamp-1">{a.step}</div><div className="mt-2"><ProgressBar value={a.progress/100} tone={a.status==='alert'?'amber':a.status==='waiting'?'cyan':'teal'} height={4}/></div></div>)}</div><button onClick={()=>onNavigateProduct('agents')} className="mt-3 text-[10.5px] text-[#6FD8EC]">Abrir Nexo Agents →</button></Panel></div><div className="grid grid-cols-1 xl:grid-cols-2 gap-4"><Panel title="Produtos de dados críticos" subtitle="Visões certificadas consumidas pelos módulos"><div className="space-y-2">{DATA_PRODUCTS.slice(0,4).map(p=><button key={p.id} onClick={()=>setSelectedProduct(p)} className="w-full rounded-lg border border-white/10 bg-white/[0.03] p-3 text-left hover:bg-white/[0.06]"><div className="flex justify-between"><span className="text-[11.5px] text-neutral-200">{p.name}</span><span className="text-[10px] text-[#5ED4C8]">{p.quality}%</span></div><div className="text-[10px] text-neutral-500 mt-1">{p.records} · atualizado {p.freshness}</div></button>)}</div></Panel><Panel title="Eventos operacionais" subtitle="Barramento compartilhado com Control e Agents"><div className="space-y-2 max-h-[290px] overflow-y-auto nexo-scroll">{events.slice(-9).reverse().map((e,i)=><div key={`${e.t}-${i}`} className="flex gap-2 border-b border-white/[0.06] pb-2"><span className="text-[9.5px] font-mono text-neutral-600 shrink-0">{e.t}</span><span className="text-[10.5px] text-neutral-300">{e.text}</span></div>)}</div></Panel></div></div>;
 
-      {tab === 'Catálogo' && (
-        <Panel title="Catálogo de dados" subtitle="Entidades centrais do modelo conceitual">
-          <div className="space-y-2.5">
-            {CATALOG_ENTITIES.map((e) => (
-              <div key={e.entidade} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[12.5px] text-neutral-200">{e.entidade}</span>
-                  <span className="text-[11px] text-neutral-500 tnum">{e.qualidade}% qualidade</span>
-                </div>
-                <ProgressBar value={e.qualidade / 100} tone={e.qualidade > 95 ? 'teal' : e.qualidade > 85 ? 'blue' : 'amber'} />
-                <div className="text-[10.5px] text-neutral-500 mt-1.5">{e.origemPrincipal} · {e.registros}</div>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      )}
+  const Catalog=()=> <div className="space-y-4"><Header title="Catálogo e marketplace de dados" subtitle="Produtos certificados, contratos de dados, owners e consumidores" onLive={toggleLive} live={live}/><div className="flex flex-col md:flex-row gap-2"><div className="relative flex-1"><Icon name="Search" size={13} className="absolute left-3 top-2.5 text-neutral-500"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produto, tag ou descrição..." className="w-full rounded-lg border border-white/10 bg-white/[0.03] pl-9 pr-3 py-2 text-[11px] text-neutral-200 outline-none"/></div><select value={domain} onChange={e=>setDomain(e.target.value)} className="rounded-lg border border-white/10 bg-[#0B2235] px-3 py-2 text-[11px] text-neutral-300"><option value="todos">Todos os domínios</option>{DATA_DOMAINS.map(d=><option key={d.id}>{d.name}</option>)}</select><button onClick={()=>onPushEvent('Solicitação de novo produto de dados registrada para triagem','success')} className="rounded-lg border border-[#18B7D6]/30 bg-[#18B7D6]/10 px-3 py-2 text-[10.5px] text-[#6FD8EC]"><Icon name="Plus" size={11} className="inline mr-1.5"/>Novo produto</button></div><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">{filteredProducts.map(p=><button key={p.id} onClick={()=>setSelectedProduct(p)} className="text-left rounded-xl border border-white/10 bg-[#0E2A40]/60 p-4 hover:border-white/20"><div className="flex justify-between gap-2"><span className="font-mono text-[9px] text-neutral-600">{p.id}</span><span className="text-[9.5px]" style={{color:p.status==='certified'?'#0FA39D':p.status==='attention'?'#E5A11A':'#9AACB8'}}>{p.status==='certified'?'CERTIFICADO':p.status==='attention'?'ATENÇÃO':'RASCUNHO'}</span></div><div className="text-[13px] font-semibold text-neutral-100 mt-2">{p.name}</div><div className="text-[10.5px] text-neutral-500 mt-1 line-clamp-2 min-h-[32px]">{p.description}</div><div className="grid grid-cols-3 gap-2 mt-3 text-center"><div><div className="text-[13px] text-neutral-100">{p.quality}%</div><div className="text-[8.5px] text-neutral-600">qualidade</div></div><div><div className="text-[11px] text-neutral-100">{p.freshness}</div><div className="text-[8.5px] text-neutral-600">frescor</div></div><div><div className="text-[11px] text-neutral-100">{p.sla}</div><div className="text-[8.5px] text-neutral-600">SLA</div></div></div><div className="mt-3 flex flex-wrap gap-1">{p.tags.map(t=><span key={t} className="text-[8.5px] rounded bg-white/[0.05] px-1.5 py-0.5 text-neutral-500">{t}</span>)}</div></button>)}</div></div>;
 
-      {tab === 'Integrações' && (
-        <div className="space-y-4">
-          {grouped.map(({ cat, items }) => (
-            <Panel key={cat} title={cat} subtitle={`${items.length} conector(es)`}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                {items.map((i) => (
-                  <button key={i.id} onClick={() => setSelected(i)} className="text-left rounded-lg border border-white/10 bg-white/[0.03] p-3 hover:bg-white/[0.06] transition-colors">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="flex items-center gap-1.5 text-[12px] text-neutral-200"><Icon name={CATEGORY_ICON[i.categoria]} size={13} className="text-neutral-500" />{i.origem}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10.5px] text-neutral-500">{i.frequencia}</span>
-                      <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: STATUS_META[i.status].color }}>
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_META[i.status].color }} />{STATUS_META[i.status].label}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </Panel>
-          ))}
-        </div>
-      )}
+  const Lineage=()=> <div className="space-y-4"><Header title="Linhagem e impacto da mudança" subtitle="Da fonte ao produto, agente, decisão e relatório" onLive={toggleLive} live={live}/><Panel title="Grafo de linhagem — Passaporte Capital–Ativo" subtitle="Selecione qualquer nó para investigar dependências"><div className="relative h-[430px] rounded-xl border border-white/8 bg-[#071B2A] overflow-hidden"><svg className="absolute inset-0 w-full h-full">{[['s1','p1'],['s2','p1'],['s3','p2'],['p1','e1'],['p1','e2'],['p2','e2'],['p2','e3'],['e1','d1'],['e2','d1'],['e2','d2'],['e3','d1'],['e3','d2'],['d1','c1'],['d1','c2'],['d2','c2'],['d2','c3']].map(([a,b],i)=>{const n1=LINEAGE_NODES.find(n=>n.id===a)!;const n2=LINEAGE_NODES.find(n=>n.id===b)!;return <line key={i} x1={`${n1.x}%`} y1={`${n1.y}%`} x2={`${n2.x}%`} y2={`${n2.y}%`} stroke="rgba(111,216,236,.22)" strokeWidth="1.5"/>})}</svg>{LINEAGE_NODES.map(n=><button key={n.id} onClick={()=>onPushEvent(`Linhagem consultada: ${n.label}`,'info')} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-3 py-2 text-[9.5px] text-neutral-200 shadow-lg" style={{left:`${n.x}%`,top:`${n.y}%`,background:n.type==='source'?'#102B3D':n.type==='pipeline'?'#18354A':n.type==='entity'?'#14344C':n.type==='product'?'#0C4652':'#27334B',borderColor:n.status==='error'?'#D14A55':n.status==='warning'?'#E5A11A':'rgba(255,255,255,.16)'}}><div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{background:n.status==='warning'?'#E5A11A':'#0FA39D'}}/>{n.label}</div><div className="text-[8px] text-neutral-600 mt-0.5 uppercase">{n.type}</div></button>)}</div></Panel><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Panel title="Impacto da falha Compras.gov"><div className="space-y-2 text-[11px] text-neutral-300"><div>3 produtos de dados degradados</div><div>5 agentes em modo fallback</div><div>128 contratos sem enriquecimento</div><div>R$ 184 mi de análises potencialmente afetadas</div></div></Panel><Panel title="Controle de schema"><div className="space-y-2">{['compatibilidade retroativa','campos obrigatórios','tipos geoespaciais','contrato semântico'].map((x,i)=><div key={x} className="flex justify-between text-[10.5px]"><span className="text-neutral-300">{x}</span><span className={i===1?'text-[#E5A11A]':'text-[#0FA39D]'}>{i===1?'1 alerta':'conforme'}</span></div>)}</div></Panel><Panel title="Agente de linhagem"><div className="text-[11px] text-neutral-300 leading-relaxed">{agents[2].recommendation}</div><button onClick={()=>onNavigateProduct('agents')} className="mt-3 text-[10.5px] text-[#6FD8EC]">Abrir execução no Nexo Agents →</button></Panel></div></div>;
 
-      {tab === 'Qualidade' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Panel title="Qualidade por entidade"><SingleBarChart data={CATALOG_ENTITIES.map((e) => ({ nome: e.entidade, qualidade: e.qualidade }))} xKey="nome" yKey="qualidade" color="#0FA39D" /></Panel>
-          <Panel title="Indicadores de qualidade">
-            <div className="grid grid-cols-2 gap-3">
-              <KpiCard label="Registros rejeitados (24h)" value="1.240" icon="AlertTriangle" />
-              <KpiCard label="Duplicidades detectadas" value="86" icon="FileWarning" />
-              <KpiCard label="Fontes desatualizadas" value="1" icon="Clock" />
-              <KpiCard label="Agentes afetados" value="0" icon="Bot" />
-            </div>
-          </Panel>
-        </div>
-      )}
+  const Quality=()=> <div className="space-y-4"><Header title="Qualidade e observabilidade" subtitle="Regras, profiling, anomalias, SLAs e resolução assistida" onLive={toggleLive} live={live}/><div className="grid grid-cols-2 lg:grid-cols-5 gap-3"><KpiCard label="Regras ativas" value="1.286" icon="ListChecks"/><KpiCard label="Cobertura" value="96,8%" icon="ShieldCheck"/><KpiCard label="Anomalias abertas" value="448" icon="AlertTriangle" deltaTone="amber"/><KpiCard label="MTTR" value="2h14" icon="Clock" delta="-18%"/><KpiCard label="Registros bloqueados" value="162" icon="Lock" deltaTone="red"/></div><div className="grid grid-cols-1 xl:grid-cols-2 gap-4"><Panel title="Qualidade por produto"><SingleBarChart data={DATA_PRODUCTS.map(p=>({nome:p.name.split(' ').slice(0,2).join(' '),qualidade:p.quality}))} xKey="nome" yKey="qualidade" color="#0FA39D"/></Panel><Panel title="Composição das ocorrências"><DonutChart data={[{name:'Completude',value:38,fill:'#E5A11A'},{name:'Consistência',value:27,fill:'#D14A55'},{name:'Unicidade',value:19,fill:'#7C5CBF'},{name:'Frescor',value:16,fill:'#1584D1'}]}/></Panel></div><Panel title="Fila de incidentes de qualidade" subtitle="Priorizada por severidade, exposição e dependência"><div className="overflow-x-auto"><table className="w-full text-[10.5px]"><thead><tr className="text-left text-neutral-600 border-b border-white/10">{['ID','Severidade','Entidade / regra','Fonte','Afetados','Status','Responsável','Ação'].map(h=><th key={h} className="py-2 pr-4 font-medium">{h}</th>)}</tr></thead><tbody>{QUALITY_ISSUES.map(q=><tr key={q.id} className="border-b border-white/[0.06]"><td className="py-3 pr-4 font-mono text-neutral-500">{q.id}</td><td className="pr-4"><span style={{color:SEV_META[q.severity].color}}>{SEV_META[q.severity].label}</span></td><td className="pr-4 max-w-[330px]"><div className="text-neutral-200">{q.entity}</div><div className="text-neutral-600 line-clamp-1">{q.rule}</div></td><td className="pr-4 text-neutral-400">{q.source}</td><td className="pr-4 text-neutral-200">{q.affected}</td><td className="pr-4 text-neutral-400">{q.status}</td><td className="pr-4 text-neutral-400">{q.owner}</td><td><button onClick={()=>onPushEvent(`Plano de correção acionado para ${q.id}`,'success')} className="text-[#6FD8EC]">Resolver</button></td></tr>)}</tbody></table></div></Panel></div>;
 
-      {tab === 'Monitoramento' && (
-        <Panel title="Execuções recentes">
-          <div className="space-y-1.5">
-            {INTEGRATIONS.slice().sort((a, _b) => (a.status === 'falha' ? -1 : 1)).map((i) => (
-              <div key={i.id} className="flex items-center justify-between text-[12px] border-b border-white/[0.05] py-2 last:border-0">
-                <span className="text-neutral-300">{i.origem}</span>
-                <span className="text-neutral-500">{i.ultimaExecucao}</span>
-                <span className="inline-flex items-center gap-1 text-[10.5px] font-medium" style={{ color: STATUS_META[i.status].color }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_META[i.status].color }} />{STATUS_META[i.status].label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      )}
+  const Integrations=()=> <div className="space-y-4"><Header title="Integrações e pipelines" subtitle="Conectores, CDC, APIs, streams, cargas e dependências" onLive={toggleLive} live={live}/><div className="grid grid-cols-2 lg:grid-cols-5 gap-3"><KpiCard label="Conectores" value={String(INTEGRATIONS.length)} icon="Plug"/><KpiCard label="Ativos" value={String(ativas)} icon="CheckCircle2"/><KpiCard label="Degradados" value={String(INTEGRATIONS.filter(i=>i.status==='degradada').length)} icon="AlertTriangle"/><KpiCard label="Falhas" value={String(INTEGRATIONS.filter(i=>i.status==='falha').length)} icon="AlertOctagon" deltaTone="red"/><KpiCard label="Latência p95" value="680 ms" icon="Activity"/></div><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">{INTEGRATIONS.map(i=><button key={i.id} onClick={()=>setSelectedIntegration(i)} className="text-left rounded-xl border border-white/10 bg-[#0E2A40]/60 p-4 hover:border-white/20"><div className="flex justify-between"><div><div className="text-[12px] text-neutral-100">{i.origem}</div><div className="text-[9.5px] text-neutral-600 mt-0.5">{i.categoria} · {i.metodo}</div></div><span className="inline-flex items-center gap-1 text-[9.5px]" style={{color:STATUS_META[i.status].color}}><span className="w-1.5 h-1.5 rounded-full" style={{background:STATUS_META[i.status].color}}/>{syncing===i.id?'Sincronizando...':STATUS_META[i.status].label}</span></div><div className="text-[10px] text-neutral-500 mt-3 line-clamp-2 min-h-[30px]">{i.dadosEsperados}</div><div className="mt-3 pt-2 border-t border-white/[0.06] flex justify-between text-[9px] text-neutral-600"><span>{i.frequencia}</span><span>{i.latenciaMs} ms</span></div></button>)}</div></div>;
 
-      <ConnectorDetail integration={selected} onClose={() => setSelected(null)} />
-    </div>
-  );
+  const Admin=()=> <div className="space-y-4"><Header title="Administração e governança" subtitle="Domínios, owners, políticas, acesso, retenção e IA responsável" onLive={toggleLive} live={live}/><div className="grid grid-cols-1 xl:grid-cols-2 gap-4"><Panel title="Domínios e responsabilidades"><div className="space-y-2">{DATA_DOMAINS.map(d=><div key={d.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-3"><div className="flex justify-between"><div><div className="text-[11.5px] text-neutral-200">{d.name}</div><div className="text-[9.5px] text-neutral-600">Owner: {d.owner} · Steward: {d.steward}</div></div><span className="text-[9.5px] text-neutral-500">{d.classification}</span></div><div className="grid grid-cols-3 mt-3 text-center"><div><div className="text-[13px] text-neutral-100">{d.products}</div><div className="text-[8.5px] text-neutral-600">produtos</div></div><div><div className="text-[13px] text-neutral-100">{d.entities}</div><div className="text-[8.5px] text-neutral-600">entidades</div></div><div><div className="text-[13px] text-neutral-100">{d.quality}%</div><div className="text-[8.5px] text-neutral-600">qualidade</div></div></div></div>)}</div></Panel><Panel title="Políticas corporativas"><div className="space-y-3">{['Contrato de dados obrigatório para produtos certificados','Dados sensíveis mascarados fora do domínio autorizado','Geometrias validadas antes de decisões financeiras','Retenção conforme classe documental e LGPD','Agentes não alteram golden records sem gate humano','Fallback para última carga válida em falhas externas'].map((r,i)=><div key={r} className="flex items-start justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3"><div className="text-[10.5px] text-neutral-300">{r}</div><button onClick={()=>onPushEvent(`Política ${i+1} revisada e registrada em auditoria`,'success')} className="w-8 h-4 rounded-full bg-[#0FA39D]/40 relative shrink-0"><span className="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-[#5ED4C8]"/></button></div>)}</div></Panel></div><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Panel title="Identidade e golden record"><div className="text-[11px] text-neutral-300 leading-relaxed">O Passaporte Capital–Ativo utiliza identificadores persistentes, matching determinístico e probabilístico, sobrevivência de atributos e revisão humana para ambiguidades.</div></Panel><Panel title="Segurança e privacidade"><div className="space-y-2 text-[10.5px] text-neutral-300"><div>RBAC + ABAC por domínio e finalidade</div><div>Mascaramento de CPF, NIS e dados bancários</div><div>Logs imutáveis e trilha de acesso</div><div>Criptografia em trânsito e repouso</div></div></Panel><Panel title="Ambiente"><div className="space-y-2 text-[10.5px]"><div className="flex justify-between"><span className="text-neutral-500">Ambiente</span><span className="text-[#0FA39D]">Demonstração</span></div><div className="flex justify-between"><span className="text-neutral-500">Catálogo</span><span className="text-neutral-200">v2.8.0</span></div><div className="flex justify-between"><span className="text-neutral-500">Lakehouse</span><span className="text-neutral-200">Federado</span></div><div className="flex justify-between"><span className="text-neutral-500">Último backup</span><span className="text-neutral-200">há 22 min</span></div></div></Panel></div></div>;
+
+  return <div className="p-5 max-w-[1550px] mx-auto nexo-fade-in">{section==='overview'?<Overview/>:section==='catalog'?<Catalog/>:section==='lineage'?<Lineage/>:section==='quality'?<Quality/>:section==='integrations'?<Integrations/>:<Admin/>}<ConnectorDetail integration={selectedIntegration} onClose={()=>setSelectedIntegration(null)} onSync={sync}/><ProductDetail product={selectedProduct} onClose={()=>setSelectedProduct(null)} onNavigate={onNavigateProduct}/></div>;
 }

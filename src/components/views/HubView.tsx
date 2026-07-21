@@ -1,3 +1,4 @@
+import { EMBEDDED_DATASET_SUMMARY } from '@/data/realisticPortfolioData';
 import { useState } from 'react';
 import { Icon } from '@/lib/icons';
 import { NAV_PRODUCTS, type ProductKey } from '@/data/navConfig';
@@ -15,17 +16,17 @@ function greeting() {
 }
 
 const PRODUCT_STATS: Record<string, { items: number; alerts: number; updated: string }> = {
-  control: { items: 8, alerts: 3, updated: 'há 2 min' },
-  capital: { items: 32, alerts: 1, updated: 'há 1 h' },
-  carteira: { items: 186, alerts: 4, updated: 'há 40 min' },
-  estrutura: { items: 11, alerts: 0, updated: 'há 3 h' },
-  contrata: { items: 19, alerts: 6, updated: 'há 12 min' },
-  entrega: { items: 8, alerts: 2, updated: 'há 4 min' },
-  evidencia: { items: 6, alerts: 1, updated: 'há 4 min' },
-  ativos: { items: 8, alerts: 1, updated: 'há 20 min' },
-  impacto: { items: 212, alerts: 0, updated: 'há 6 h' },
-  agents: { items: 12, alerts: 3, updated: 'agora' },
-  data: { items: 17, alerts: 1, updated: 'há 5 min' },
+  control: { items: ASSETS.length, alerts: 14, updated: 'há 2 min' },
+  capital: { items: EMBEDDED_DATASET_SUMMARY.fundingSources + 7, alerts: 9, updated: 'há 8 min' },
+  carteira: { items: EMBEDDED_DATASET_SUMMARY.opportunities + 8, alerts: 18, updated: 'há 4 min' },
+  estrutura: { items: EMBEDDED_DATASET_SUMMARY.structureCases + 5, alerts: 7, updated: 'há 11 min' },
+  contrata: { items: 95, alerts: 12, updated: 'há 6 min' },
+  entrega: { items: EMBEDDED_DATASET_SUMMARY.measurements + 5, alerts: 24, updated: 'há 1 min' },
+  evidencia: { items: EMBEDDED_DATASET_SUMMARY.evidences + 9, alerts: 31, updated: 'agora' },
+  ativos: { items: ASSETS.length, alerts: 16, updated: 'há 3 min' },
+  impacto: { items: EMBEDDED_DATASET_SUMMARY.indicators + 9, alerts: 11, updated: 'há 9 min' },
+  agents: { items: EMBEDDED_DATASET_SUMMARY.agentExecutions + 14, alerts: 22, updated: 'agora' },
+  data: { items: EMBEDDED_DATASET_SUMMARY.dataProducts + 6, alerts: 13, updated: 'há 2 min' },
 };
 
 export function HubView({ onOpenProduct, onOpenAsset }: { onOpenProduct: (p: ProductKey) => void; onOpenAsset: (id: string) => void }) {
@@ -39,6 +40,7 @@ export function HubView({ onOpenProduct, onOpenAsset }: { onOpenProduct: (p: Pro
         <div>
           <h1 className="font-display text-[21px] font-semibold text-neutral-50">{greeting()}, {CURRENT_USER.name.split(' ')[0]}</h1>
           <p className="text-[12.5px] text-neutral-400 mt-0.5 capitalize">{CURRENT_USER.role} · {CURRENT_USER.unit} · {dateRef}</p>
+          <p className="text-[10.5px] text-[#5FB4E8] mt-1">Base embarcada · {ASSETS.length} ativos · {EMBEDDED_DATASET_SUMMARY.evidences} evidências · sem backend</p>
         </div>
         <div className="flex items-center rounded-lg border border-white/10 bg-white/[0.03] p-0.5 shrink-0">
           {(['minha', 'corporativa'] as const).map((v) => (

@@ -1,0 +1,47 @@
+{
+  "disclaimer": "Todos os registros são sintéticos e não representam operações reais da CAIXA.",
+  "calibration_date": "2026-07-21",
+  "embedded": true,
+  "backend_required": false,
+  "volumes": {
+    "additional_assets": 120,
+    "funding_sources": 32,
+    "covenants": 64,
+    "opportunities": 220,
+    "structure_cases": 60,
+    "alternatives": 180,
+    "delivery_items": 90,
+    "measurements": 270,
+    "disbursements": 270,
+    "evidences": 800,
+    "inspections": 180,
+    "custody_events": 500,
+    "indicators": 480,
+    "agent_executions": 360,
+    "agent_logs": 1200,
+    "data_products": 36,
+    "quality_issues": 90
+  },
+  "public_reference_families": [
+    {
+      "source": "IBGE Cidades e Estados / Censo 2022",
+      "usage": "nomes de municípios, ordem de grandeza populacional e cobertura territorial"
+    },
+    {
+      "source": "CAIXA FINISA e soluções para o poder público",
+      "usage": "tipologias de infraestrutura, saneamento, mobilidade, saúde e educação"
+    },
+    {
+      "source": "FGTS — programas de aplicação",
+      "usage": "habitação, saneamento, infraestrutura e dimensões Pessoas, Cidade e Ambiente"
+    },
+    {
+      "source": "Transferegov e Obrasgov/CIPI",
+      "usage": "modelo de projetos, contratos, geolocalização e execução física/financeira"
+    },
+    {
+      "source": "ArcGIS Living Atlas",
+      "usage": "contexto geoespacial e camadas temáticas"
+    }
+  ]
+}

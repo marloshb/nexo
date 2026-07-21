@@ -1,3 +1,4 @@
+import { REALISTIC_OPPORTUNITIES } from '@/data/realisticPortfolioData';
 // Dados sintéticos — Nexo Carteira. Todos os registros são fictícios e servem ao mockup funcional.
 
 export type OpportunityStage = 'Triagem' | 'Georreferenciada' | 'Enriquecida' | 'Verificada' | 'Estruturação' | 'Arquivada';
@@ -169,6 +170,7 @@ export const OPPORTUNITIES: Opportunity[] = [
     dimensions: { demanda: 70, impacto: 69, prontidao: 44, capacidade: 28, aderencia: 66, resiliencia: 54 },
   },
 ];
+OPPORTUNITIES.push(...REALISTIC_OPPORTUNITIES);
 
 export interface TerritorialSignal {
   id: string; title: string; territory: string; sector: string; score: number; trend: string; evidence: string; recommendation: string; status: 'normal' | 'atencao' | 'critico';

@@ -1,3 +1,4 @@
+import { REALISTIC_FUNDING_SOURCES, REALISTIC_COVENANTS, REALISTIC_PROGRAM_ENVELOPES } from '@/data/realisticPortfolioData';
 // Dados sintéticos — Nexo Capital (V2)
 
 export interface FundingSource {
@@ -115,6 +116,7 @@ export const FUNDING_SOURCES: FundingSource[] = [
     periodicidadeRevisao: 'Anual', valorAlocado: 780_000_000, valorUtilizado: 106_000_000, status: 'normal',
   },
 ];
+FUNDING_SOURCES.push(...REALISTIC_FUNDING_SOURCES);
 
 export interface Covenant {
   id: string; fonteId: string; descricao: string; proximaVerificacao: string; status: 'normal' | 'atencao' | 'critico';
@@ -126,6 +128,7 @@ export const COVENANTS: Covenant[] = [
   { id: 'COV-14', fonteId: 'FND-004', descricao: 'Relatório de emissões evitadas — corredores de mobilidade', proximaVerificacao: '2026-12-01', status: 'normal' },
   { id: 'COV-15', fonteId: 'FND-001', descricao: 'Comprovação trimestral de novas ligações de esgoto', proximaVerificacao: '2026-10-15', status: 'normal' },
 ];
+COVENANTS.push(...REALISTIC_COVENANTS);
 
 export interface ProgramEnvelope { programa: string; envelope: number; alocado: number; territorio: string; }
 export const PROGRAM_ENVELOPES: ProgramEnvelope[] = [
@@ -136,6 +139,7 @@ export const PROGRAM_ENVELOPES: ProgramEnvelope[] = [
   { programa: 'Programa de Energias Renováveis e Transição Justa', envelope: 430, alocado: 430, territorio: 'Nordeste' },
   { programa: 'Programa Nacional de Educação Profissionalizante', envelope: 420, alocado: 42, territorio: 'Centro-Oeste' },
 ];
+PROGRAM_ENVELOPES.push(...REALISTIC_PROGRAM_ENVELOPES);
 
 export type CapitalSection = 'overview' | 'sources' | 'programs' | 'covenants' | 'map' | 'analytics' | 'agents' | 'reports' | 'integrations' | 'admin';
 

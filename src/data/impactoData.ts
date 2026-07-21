@@ -1,3 +1,4 @@
+import { REALISTIC_INDICATORS, REALISTIC_ASSET_IMPACT } from '@/data/realisticPortfolioData';
 // Dados sintéticos — Nexo Impacto. Todos os nomes, valores e identificadores são fictícios.
 
 export type ImpactoSection = 'overview' | 'indicators' | 'beneficiaries' | 'map' | 'reports' | 'admin';
@@ -183,6 +184,7 @@ export const INDICATORS: Indicator[] = [
     status: 'pendente', confidence: 0.31, evidenceCount: 4, lastUpdate: '2026-07-14', framework: ['ODS 11', 'BIRD'], trend: 'stable', materiality: 'média', verification: 'amostral',
   },
 ];
+INDICATORS.push(...REALISTIC_INDICATORS);
 
 export const ASSET_IMPACT: AssetImpactSummary[] = [
   { assetId: 'NEXO-ASSET-BR-CE-2307304-AGU-000077', asset: 'Adutora Sertão Vivo', uf: 'CE', setor: 'Recursos Hídricos', valor: 298_000_000, beneficiariosPrevistos: 310_000, beneficiariosComprovados: 296_000, impactoScore: 92, confidence: 0.96, social: 96, ambiental: 78, economica: 83, climatica: 88, territorial: 91, status: 'normal', keyOutcome: '95,5% da população-alvo com serviço comprovado.', nextAction: 'Renovar amostra domiciliar no 4º trimestre.' },
@@ -192,6 +194,7 @@ export const ASSET_IMPACT: AssetImpactSummary[] = [
   { assetId: 'NEXO-ASSET-BR-SP-3549904-SAN-000284', asset: 'Sistema Integrado de Esgotamento Vale Verde', uf: 'SP', setor: 'Saneamento', valor: 480_000_000, beneficiariosPrevistos: 210_000, beneficiariosComprovados: 0, impactoScore: 39, confidence: 0.42, social: 63, ambiental: 72, economica: 41, climatica: 55, territorial: 69, status: 'critico', keyOutcome: 'Impacto ainda não reconhecível durante a execução.', nextAction: 'Concluir medição e plano de comissionamento.' },
   { assetId: 'NEXO-ASSET-BR-PA-1501402-DRE-000198', asset: 'Programa de Macrodrenagem Rio Norte', uf: 'PA', setor: 'Drenagem', valor: 612_000_000, beneficiariosPrevistos: 340_000, beneficiariosComprovados: 0, impactoScore: 44, confidence: 0.38, social: 58, ambiental: 76, economica: 49, climatica: 64, territorial: 71, status: 'atencao', keyOutcome: 'Benefício climático projetado, ainda sem validação pós-evento.', nextAction: 'Atualizar modelo hidrológico após reprogramação.' },
 ];
+ASSET_IMPACT.push(...REALISTIC_ASSET_IMPACT);
 
 export const BENEFICIARY_SEGMENTS: BeneficiarySegment[] = [
   { name: 'Famílias de baixa renda', previsto: 462_000, comprovado: 386_500, share: 0.36, confidence: 0.92, color: '#1584D1' },

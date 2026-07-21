@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/shell/Sidebar';
 import { RightPanel } from '@/components/shell/RightPanel';
 import { FooterBar } from '@/components/shell/FooterBar';
 import { AskNexoPanel } from '@/components/AskNexo';
+import { PresentationWizard } from '@/components/PresentationWizard';
 import { HubView } from '@/components/views/HubView';
 import { ControlView } from '@/components/views/ControlView';
 import { AtivosView } from '@/components/views/AtivosView';
@@ -28,7 +29,10 @@ import type { EntregaSection } from '@/data/entregaData';
 import type { EvidenciaSection } from '@/data/evidenciaData';
 import type { AtivosSection } from '@/data/ativosData';
 import type { ImpactoSection } from '@/data/impactoData';
+import type { AgentsSection } from '@/data/agentsData';
+import type { DataSection } from '@/data/dataData';
 import { nowStr } from '@/lib/tokens';
+import { PRESENTATION_ASSET_ID, type PresentationStep } from '@/data/presentationData';
 
 export type VistoriaStage = 'agendada' | 'designada' | 'em_campo' | 'sincronizada' | 'validacao' | 'concluida';
 
@@ -39,6 +43,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [askOpen, setAskOpen] = useState(false);
+  const [presentationOpen, setPresentationOpen] = useState(false);
   const [controlSection, setControlSection] = useState<ControlSection>('overview');
   const [capitalSection, setCapitalSection] = useState<CapitalSection>('overview');
   const [carteiraSection, setCarteiraSection] = useState<CarteiraSection>('overview');
@@ -48,6 +53,8 @@ export default function App() {
   const [evidenciaSection, setEvidenciaSection] = useState<EvidenciaSection>('overview');
   const [ativosSection, setAtivosSection] = useState<AtivosSection>('overview');
   const [impactoSection, setImpactoSection] = useState<ImpactoSection>('overview');
+  const [agentsSection, setAgentsSection] = useState<AgentsSection>('cockpit');
+  const [dataSection, setDataSection] = useState<DataSection>('overview');
 
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>(INITIAL_AUDIT);
@@ -113,6 +120,40 @@ export default function App() {
     pushEvent(`Decisão registrada: ${label}`, 'success');
   }
 
+  function navigatePresentationStep(step: PresentationStep) {
+    if (step.product === 'ativo360') {
+      setPrevProduct('control');
+      setActiveAssetId(PRESENTATION_ASSET_ID);
+      setProductState('ativo360');
+      return;
+    }
+    setActiveAssetId(null);
+    setProductState(step.product);
+    if (step.product === 'control') setControlSection(step.section as ControlSection);
+    if (step.product === 'capital') setCapitalSection(step.section as CapitalSection);
+    if (step.product === 'carteira') setCarteiraSection(step.section as CarteiraSection);
+    if (step.product === 'estrutura') setEstruturaSection(step.section as EstruturaSection);
+    if (step.product === 'contrata') setContrataSection(step.section as ContrataSection);
+    if (step.product === 'entrega') setEntregaSection(step.section as EntregaSection);
+    if (step.product === 'evidencia') setEvidenciaSection(step.section as EvidenciaSection);
+    if (step.product === 'ativos') setAtivosSection(step.section as AtivosSection);
+    if (step.product === 'impacto') setImpactoSection(step.section as ImpactoSection);
+    if (step.product === 'agents') setAgentsSection(step.section as AgentsSection);
+    if (step.product === 'data') setDataSection(step.section as DataSection);
+  }
+
+  function runPresentationLive() {
+    if (!demoRunning) {
+      setDemoStepIdx(0);
+      setVistoriaStage('agendada');
+      setDemoRunning(true);
+      pushEvent('Modo apresentação: simulação ao vivo iniciada para o caso Vale Verde', 'info');
+    } else {
+      setDemoRunning(false);
+      pushEvent('Modo apresentação: simulação ao vivo pausada', 'warning');
+    }
+  }
+
   const asset = ASSETS.find((a) => a.id === activeAssetId) ?? null;
   const demoDone = demoStepIdx >= DEMO_SCRIPT.length;
 
@@ -123,6 +164,7 @@ export default function App() {
         onNavigateHub={() => setProduct('hub')}
         onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
         onOpenAsk={() => setAskOpen(true)}
+        onOpenPresentation={() => setPresentationOpen(true)}
         onSelectAsset={(id) => openAsset(id, product)}
       />
       <div className="flex flex-1 min-h-0">
@@ -131,8 +173,8 @@ export default function App() {
             product={product}
             collapsed={sidebarCollapsed}
             onNavigate={setProduct}
-            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : product === 'entrega' ? entregaSection : product === 'evidencia' ? evidenciaSection : product === 'ativos' ? ativosSection : product === 'impacto' ? impactoSection : undefined}
-            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : product === 'entrega' ? (id) => setEntregaSection(id as EntregaSection) : product === 'evidencia' ? (id) => setEvidenciaSection(id as EvidenciaSection) : product === 'ativos' ? (id) => setAtivosSection(id as AtivosSection) : product === 'impacto' ? (id) => setImpactoSection(id as ImpactoSection) : undefined}
+            activeItemId={product === 'control' ? controlSection : product === 'capital' ? capitalSection : product === 'carteira' ? carteiraSection : product === 'estrutura' ? estruturaSection : product === 'contrata' ? contrataSection : product === 'entrega' ? entregaSection : product === 'evidencia' ? evidenciaSection : product === 'ativos' ? ativosSection : product === 'impacto' ? impactoSection : product === 'agents' ? agentsSection : product === 'data' ? dataSection : undefined}
+            onItemSelect={product === 'control' ? (id) => setControlSection(id as ControlSection) : product === 'capital' ? (id) => setCapitalSection(id as CapitalSection) : product === 'carteira' ? (id) => setCarteiraSection(id as CarteiraSection) : product === 'estrutura' ? (id) => setEstruturaSection(id as EstruturaSection) : product === 'contrata' ? (id) => setContrataSection(id as ContrataSection) : product === 'entrega' ? (id) => setEntregaSection(id as EntregaSection) : product === 'evidencia' ? (id) => setEvidenciaSection(id as EvidenciaSection) : product === 'ativos' ? (id) => setAtivosSection(id as AtivosSection) : product === 'impacto' ? (id) => setImpactoSection(id as ImpactoSection) : product === 'agents' ? (id) => setAgentsSection(id as AgentsSection) : product === 'data' ? (id) => setDataSection(id as DataSection) : undefined}
           />
         )}
 
@@ -184,7 +226,16 @@ export default function App() {
               demoRunning={demoRunning}
             />
           )}
-          {product === 'agents' && <AgentsView />}
+          {product === 'agents' && (
+            <AgentsView
+              section={agentsSection}
+              onSectionChange={setAgentsSection}
+              onOpenAsset={(id) => openAsset(id, 'agents')}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'capital' && (
             <CapitalView
               section={capitalSection}
@@ -235,7 +286,15 @@ export default function App() {
               onPushEvent={pushEvent}
             />
           )}
-          {product === 'data' && <DataView />}
+          {product === 'data' && (
+            <DataView
+              section={dataSection}
+              onSectionChange={setDataSection}
+              onNavigateProduct={setProduct}
+              events={events}
+              onPushEvent={pushEvent}
+            />
+          )}
           {product === 'ativo360' && asset && (
             <Ativo360View
               asset={asset}
@@ -261,6 +320,12 @@ export default function App() {
 
       <FooterBar events={events} agents={AGENTS} demoRunning={demoRunning} onToggleDemo={toggleDemo} demoDone={demoDone} />
       <AskNexoPanel open={askOpen} onClose={() => setAskOpen(false)} product={product} activeAssetId={activeAssetId} />
+      <PresentationWizard
+        open={presentationOpen}
+        onClose={() => setPresentationOpen(false)}
+        onNavigateStep={navigatePresentationStep}
+        onRunLive={runPresentationLive}
+      />
     </div>
   );
 }

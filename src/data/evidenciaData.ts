@@ -1,3 +1,4 @@
+import { REALISTIC_EVIDENCE_RECORDS, REALISTIC_INSPECTIONS, REALISTIC_CUSTODY_EVENTS } from '@/data/realisticPortfolioData';
 import type { StatusKey } from '@/lib/tokens';
 
 export type EvidenciaSection =
@@ -101,6 +102,7 @@ export const EVIDENCE_RECORDS: EvidenceRecord[] = [
     hash: 'IOT:brt-sa-20260719', signature: 'Gateway autenticado', linkedItem: 'Mobilização inicial', relatedValue: 1_900_000, decision: 'Aguardando confirmação em campo', tags: ['IoT', 'equipamento', 'mobilização'], anomaly: 'Três equipamentos previstos não transmitiram localização durante a janela mínima.',
   },
 ];
+EVIDENCE_RECORDS.push(...REALISTIC_EVIDENCE_RECORDS);
 
 export interface InspectionOrder {
   id: string;
@@ -129,6 +131,7 @@ export const INSPECTION_ORDERS: InspectionOrder[] = [
   { id: 'OV-2026-0859', assetId: EVIDENCE_RECORDS[7].assetId, assetName: 'Horizonte Azul', measurementId: 'MED-HORI-018', priority: 'P2', status: 'concluida', team: 'GEREG Nordeste · Habitação', lead: 'Luciana Aguiar', scheduledFor: '18/07/2026 10:00', sla: 'Concluída', route: ['Acesso viário', 'Bloco 07', 'Terminal previsto'], distanceKm: 12, evidenceIds: ['EV-09571'], objective: 'Verificar prontidão física e dependências de funcionalidade.', finding: 'Bloco concluído; acesso viário e transporte ainda incompletos.', progress: 1, decision: 'Prontidão operacional não reconhecida', risk: 'atencao' },
   { id: 'OV-2026-0875', assetId: EVIDENCE_RECORDS[8].assetId, assetName: 'BRT Serra Azul', measurementId: 'MED-BRT-001', priority: 'P1', status: 'agendada', team: 'GEREG Sudeste · Mobilidade', lead: 'André Farias', scheduledFor: '23/07/2026 08:00', sla: '42h 15m', route: ['Pátio central', 'Frente 01'], distanceKm: 18, evidenceIds: ['EV-09908'], objective: 'Confirmar mobilização dos equipamentos previstos no contrato.', finding: 'Aguardando designação formal da equipe.', progress: 0.08, decision: 'Pendente', risk: 'atencao' },
 ];
+INSPECTION_ORDERS.push(...REALISTIC_INSPECTIONS);
 
 export interface CustodyEvent {
   id: string;
@@ -150,6 +153,7 @@ export const CUSTODY_EVENTS: CustodyEvent[] = [
   { id: 'CC-1006', evidenceId: 'EV-08843', at: '19:42:23', event: 'Vínculo à ordem de vistoria', actor: 'Agente Orquestrador', system: 'Workflow Manager', hashState: 'íntegro', detail: 'Evidência vinculada à OV-2026-0871 e bloqueada para edição.' },
   { id: 'CC-1007', evidenceId: 'EV-08843', at: '09:48:31', event: 'Consulta em campo', actor: 'Marina Lopes', system: 'Field Maps', hashState: 'íntegro', detail: 'Versão somente leitura aberta pela equipe autorizada.' },
 ];
+CUSTODY_EVENTS.push(...REALISTIC_CUSTODY_EVENTS);
 
 export interface EvidenceAgentRuntime {
   id: string;

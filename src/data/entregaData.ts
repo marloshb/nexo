@@ -1,3 +1,4 @@
+import { REALISTIC_DELIVERY_PORTFOLIO, REALISTIC_MEASUREMENTS, REALISTIC_DISBURSEMENTS } from '@/data/realisticPortfolioData';
 import type { StatusKey } from '@/lib/tokens';
 
 export type EntregaSection =
@@ -59,6 +60,7 @@ export const DELIVERY_PORTFOLIO: DeliveryPortfolioItem[] = [
     openIssues: 2, criticalIssues: 0, status: 'analise', nextMilestone: 'Ordem de serviço', owner: 'Rodrigo Nakamura',
   },
 ];
+DELIVERY_PORTFOLIO.push(...REALISTIC_DELIVERY_PORTFOLIO);
 
 export interface ScheduleMilestone {
   id: string;
@@ -117,6 +119,7 @@ export const DELIVERY_MEASUREMENTS: MeasurementRecord[] = [
   { id: 'MED-BRT-001', number: 1, assetId: DELIVERY_PORTFOLIO[4].assetId, contract: 'CT-2026-MOB-0031', period: 'Mobilização inicial', submittedAt: '19/07/2026 08:05', requested: 12_800_000, validated: 10_900_000, retained: 1_900_000, evidenceCount: 19, confidence: 0.89, physicalClaimed: 0.06, physicalVerified: 0.05, status: 'em_analise', risk: 'atencao', owner: 'Rodrigo Nakamura', agent: 'Engenharia e Custos', issue: 'Equipamentos mobilizados parcialmente.' },
   { id: 'MED-SERT-024', number: 24, assetId: DELIVERY_PORTFOLIO[3].assetId, contract: 'CT-2022-AGU-0033', period: 'Medição final', submittedAt: '10/06/2024 16:20', requested: 4_120_000, validated: 4_120_000, retained: 0, evidenceCount: 75, confidence: 0.99, physicalClaimed: 1, physicalVerified: 1, status: 'paga', risk: 'normal', owner: 'Juliana Prado', agent: 'Medição e Desembolso' },
 ];
+DELIVERY_MEASUREMENTS.push(...REALISTIC_MEASUREMENTS);
 
 export interface DisbursementRecord {
   id: string;
@@ -141,6 +144,7 @@ export const DISBURSEMENTS: DisbursementRecord[] = [
   { id: 'DES-2026-0758', measurementId: 'MED-BRT-001', assetId: DELIVERY_PORTFOLIO[4].assetId, requested: 12_800_000, recommended: 10_900_000, paid: 0, dueDate: '02/08/2026', funding: 'BIRD + Município', envelopeBalance: 330_000_000, conditions: 9, conditionsMet: 7, status: 'processando', humanGate: 'Gerência de Mobilidade' },
   { id: 'DES-2024-0311', measurementId: 'MED-SERT-024', assetId: DELIVERY_PORTFOLIO[3].assetId, requested: 4_120_000, recommended: 4_120_000, paid: 4_120_000, dueDate: '20/06/2024', funding: 'OGU Segurança Hídrica', envelopeBalance: 0, conditions: 7, conditionsMet: 7, status: 'pago', humanGate: 'Concluído' },
 ];
+DISBURSEMENTS.push(...REALISTIC_DISBURSEMENTS);
 
 export interface DeliveryWorkflowCard {
   id: string;

@@ -268,3 +268,54 @@ O frontend envia `question`, `messages` e `context`. O endpoint deve devolver:
 ```
 
 A chave do provedor de IA deve permanecer exclusivamente no backend. Nunca use `VITE_ANTHROPIC_API_KEY`, `VITE_OPENAI_API_KEY` ou qualquer segredo no GitHub Pages, pois variáveis Vite são incorporadas ao JavaScript público.
+
+## Nexo Agents — implementação funcional ampliada
+
+O módulo **Nexo Agents** foi implementado como centro corporativo de orquestração e governança dos agentes da plataforma:
+
+- Cockpit com KPIs, execuções, gates humanos, casos críticos, throughput, volume por módulo e integrações;
+- Fila operacional com busca, filtros, prioridades, progresso, reprocessamento, cancelamento e detalhe da execução;
+- Casos orquestrados com cadeia de agentes, resultados, decisões, exceções e acesso ao módulo responsável e Ativo 360;
+- Central de exceções com severidade, impacto, SLA, responsáveis, resolução e escalonamento;
+- Console de logs estruturados com streaming sintético, correlação, níveis, eventos, latência e exportação CSV;
+- Matriz de alçadas com autonomia, limites financeiros, confiança mínima, gates, dupla aprovação e simulador;
+- Registro corporativo de agentes com proprietário, risco, SLA, fontes, entregas, autonomia e gates humanos;
+- Ciclo ao vivo conectando vistoria, validação geoespacial, recálculo de desembolso, despacho e decisão humana.
+
+Os agentes recomendam, preparam e orquestram. Liberações financeiras, reprovações, suspensões, sanções, alterações contratuais e publicações externas permanecem condicionadas às alçadas humanas configuradas. Todos os casos, valores, logs e execuções são sintéticos.
+
+Principais arquivos:
+
+- `src/components/views/AgentsView.tsx`
+- `src/data/agentsData.ts`
+- `src/data/navConfig.ts`
+- `src/App.tsx`
+
+## Nexo Data — módulo funcional
+
+O Nexo Data foi ampliado como camada corporativa de dados e governança da plataforma, com:
+
+- visão geral de saúde dos domínios e produtos de dados;
+- catálogo e marketplace de produtos certificados;
+- contratos de dados, owners, stewards, SLAs e consumidores;
+- linhagem da fonte até decisões, agentes e relatórios;
+- qualidade, profiling, incidentes, regras e resolução assistida;
+- integrações, pipelines, observabilidade e sincronização simulada;
+- identidade persistente, golden records, segurança, privacidade e políticas;
+- agentes de qualidade, resolução de entidades, linhagem e observabilidade;
+- ciclo ao vivo com eventos dinâmicos e gates humanos.
+
+Todos os dados do módulo são sintéticos para demonstração.
+
+## Modo Apresentação — Wizard do ciclo de vida
+
+O botão **Apresentar ciclo**, na barra superior, abre um roteiro guiado de 12 cenas usando o caso sintético Vale Verde. O wizard navega automaticamente entre Control, Capital, Carteira, Estrutura, Contrata, Entrega, Evidência, Ativos, Impacto, Agents, Data e Ativo 360. Inclui notas do apresentador, decisões-chave, agentes em destaque, autoplay, cronômetro e execução ao vivo nas cenas operacionais.
+
+
+## Base embarcada ampliada
+
+A aplicação inclui uma base local extensa em `src/data/realisticPortfolioData.ts`. Os registros são sintéticos e não representam operações reais da CAIXA, mas foram calibrados com referências públicas oficiais de população municipal, modalidades de funding e tipologias de infraestrutura. Não existe dependência de banco de dados ou backend.
+
+Volumes adicionais: 120 ativos, 32 fontes de capital, 220 oportunidades, 60 casos de estruturação, 180 alternativas, 270 medições, 800 evidências, 480 indicadores, 360 execuções de agentes e 1.200 logs.
+
+Referências conceituais: IBGE Cidades e Estados; FINISA/CAIXA; Programas de Aplicação do FGTS; Transferegov; Obrasgov/CIPI.

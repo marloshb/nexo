@@ -140,8 +140,22 @@ export const SIDEBAR_CONFIG: Record<ProductKey, SidebarItem[]> = {
     { id: 'reports', label: 'Relatórios', iconKey: 'FileText' },
     { id: 'admin', label: 'Administração', iconKey: 'Settings' },
   ],
-  agents: [{ label: 'Cockpit', iconKey: 'LayoutGrid' }, { label: 'Fila de execuções', iconKey: 'ListOrdered' }, { label: 'Casos', iconKey: 'FolderOpen' }, { label: 'Exceções', iconKey: 'AlertOctagon' }, { label: 'Logs', iconKey: 'Terminal' }, { label: 'Alçadas', iconKey: 'Settings' }],
-  data: [STD.visao, { label: 'Catálogo', iconKey: 'Database' }, { label: 'Linhagem', iconKey: 'GitBranch' }, { label: 'Qualidade', iconKey: 'BadgeCheck' }, STD.integracoes, STD.administracao],
+  agents: [
+    { id: 'cockpit', label: 'Cockpit', iconKey: 'LayoutGrid' },
+    { id: 'queue', label: 'Fila de execuções', iconKey: 'ListOrdered' },
+    { id: 'cases', label: 'Casos', iconKey: 'FolderOpen' },
+    { id: 'exceptions', label: 'Exceções', iconKey: 'AlertOctagon' },
+    { id: 'logs', label: 'Logs', iconKey: 'Terminal' },
+    { id: 'authorities', label: 'Alçadas', iconKey: 'Settings' },
+  ],
+  data: [
+    { id: 'overview', label: 'Visão geral', iconKey: 'LayoutGrid' },
+    { id: 'catalog', label: 'Catálogo', iconKey: 'Database' },
+    { id: 'lineage', label: 'Linhagem', iconKey: 'GitBranch' },
+    { id: 'quality', label: 'Qualidade', iconKey: 'BadgeCheck' },
+    { id: 'integrations', label: 'Integrações', iconKey: 'Plug' },
+    { id: 'admin', label: 'Administração', iconKey: 'Settings' },
+  ],
   ativo360: [],
 };
 

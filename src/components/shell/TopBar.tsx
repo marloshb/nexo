@@ -9,12 +9,13 @@ const PRODUCT_NAMES: Record<string, string> = { hub: 'Nexo Hub', ativo360: 'Ativ
 NAV_PRODUCTS.forEach((p) => (PRODUCT_NAMES[p.key] = p.name));
 
 export function TopBar({
-  product, onNavigateHub, onToggleSidebar, onOpenAsk, onSelectAsset, alertCount = 4, taskCount = 7,
+  product, onNavigateHub, onToggleSidebar, onOpenAsk, onOpenPresentation, onSelectAsset, alertCount = 4, taskCount = 7,
 }: {
   product: ProductKey;
   onNavigateHub: () => void;
   onToggleSidebar: () => void;
   onOpenAsk: () => void;
+  onOpenPresentation: () => void;
   onSelectAsset: (id: string) => void;
   alertCount?: number;
   taskCount?: number;
@@ -93,6 +94,9 @@ export function TopBar({
           <span>Sincronizado há 4s</span>
         </div>
 
+        <button onClick={onOpenPresentation} className="hidden md:flex items-center gap-1.5 rounded-lg border border-[#7C5CBF]/45 bg-[#7C5CBF]/10 px-3 h-9 text-[12px] font-medium text-[#C8B9EB] hover:bg-[#7C5CBF]/18 transition-colors">
+          <Icon name="Presentation" size={13} /> Apresentar ciclo
+        </button>
         <button onClick={onOpenAsk} className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#18B7D6]/40 bg-[#18B7D6]/10 px-3 h-9 text-[12.5px] font-medium text-[#6FD8EC] hover:bg-[#18B7D6]/18 transition-colors">
           <Icon name="Sparkles" size={13} /> Perguntar ao Nexo
         </button>
