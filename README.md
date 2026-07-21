@@ -83,3 +83,27 @@ bash scripts/bundle-artifact.sh   # do skill web-artifacts-builder — gera bund
 - **Índice de saúde completo** — as 10 dimensões da especificação (não apenas 5) para os ativos em operação, no Ativo 360 e no Nexo Ativos
 
 Com isso, as três versões do roteiro da seção 31 estão implementadas nesta mesma base de código.
+
+## Publicar corretamente no GitHub Pages
+
+Este projeto é uma aplicação React/Vite. Não publique a raiz do repositório diretamente: o `index.html` de desenvolvimento referencia `/src/main.tsx`, que precisa ser compilado pelo Vite.
+
+O projeto já contém o workflow `.github/workflows/deploy-pages.yml`, que:
+
+1. instala as dependências;
+2. executa `pnpm build`;
+3. publica somente a pasta compilada `dist/`.
+
+No GitHub:
+
+1. envie todos os arquivos para a branch `main`, incluindo a pasta `.github`;
+2. abra **Settings → Pages**;
+3. em **Build and deployment → Source**, escolha **GitHub Actions**;
+4. abra a aba **Actions** e confirme que o workflow **Deploy CAIXA Nexo to GitHub Pages** terminou com sucesso;
+5. acesse a URL informada pelo job de deploy.
+
+A configuração `base: "./"` em `vite.config.ts` evita caminhos quebrados quando o site é publicado em uma URL de projeto, como `https://usuario.github.io/nome-do-repositorio/`.
+
+### Observação sobre as funções de IA
+
+O GitHub Pages hospeda apenas arquivos estáticos. As chamadas atuais à API da Anthropic, feitas diretamente no navegador, não devem receber uma chave secreta no frontend. Para habilitar essas funções em produção, use uma API intermediária protegida, por exemplo uma função serverless, e mantenha a chave somente no servidor. Sem essa API, o restante do mockup funciona, mas os botões de geração por IA exibirão erro de conexão.
